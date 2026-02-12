@@ -1,0 +1,1 @@
+self.__REACT_LOADABLE_MANIFEST="{\"hooks/use-collaboration.ts -> y-websocket\":{\"id\":\"hooks/use-collaboration.ts -> y-websocket\",\"files\":[\"static/chunks/_app-pages-browser_node_modules_y-websocket_src_y-websocket_js.js\"]}}"

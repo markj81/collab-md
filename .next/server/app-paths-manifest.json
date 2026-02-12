@@ -1,0 +1,5 @@
+{
+  "/api/documents/[id]/route": "app/api/documents/[id]/route.js",
+  "/editor/[id]/page": "app/editor/[id]/page.js",
+  "/share/[token]/page": "app/share/[token]/page.js"
+}

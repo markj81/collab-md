@@ -1,0 +1,47 @@
+{
+  "name": "collab-md",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev:next\" \"npm run dev:ws\"",
+    "dev:next": "next dev",
+    "dev:ws": "node server/ws-server.js",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push"
+  },
+  "dependencies": {
+    "@codemirror/commands": "^6.10.2",
+    "@codemirror/lang-markdown": "^6.5.0",
+    "@codemirror/view": "^6.39.14",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^22.19.11",
+    "@types/react": "^19.2.14",
+    "better-sqlite3": "^11.10.0",
+    "clsx": "^2.1.1",
+    "concurrently": "^9.2.1",
+    "drizzle-orm": "^0.38.4",
+    "next": "^15.5.12",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-markdown": "^9.1.0",
+    "typescript": "^5.9.3",
+    "ws": "^8.19.0",
+    "y-codemirror.next": "^0.3.5",
+    "y-websocket": "^2.1.0",
+    "yjs": "^13.6.29"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.3",
+    "@eslint/js": "^10.0.1",
+    "@tailwindcss/postcss": "^4.1.18",
+    "@tailwindcss/typography": "^0.5.19",
+    "autoprefixer": "^10.4.24",
+    "drizzle-kit": "^0.30.6",
+    "eslint": "^10.0.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.18"
+  }
+}
