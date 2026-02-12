@@ -1,5 +1,10 @@
 {
+  "/_not-found/page": "app/_not-found/page.js",
   "/api/documents/[id]/route": "app/api/documents/[id]/route.js",
+  "/api/documents/route": "app/api/documents/route.js",
+  "/api/share/[token]/route": "app/api/share/[token]/route.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/page": "app/page.js",
   "/editor/[id]/page": "app/editor/[id]/page.js",
   "/share/[token]/page": "app/share/[token]/page.js"
 }

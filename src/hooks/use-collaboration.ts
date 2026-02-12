@@ -61,9 +61,12 @@ export function useCollaboration({
     setYText(ytext);
 
     // Dynamic import for client-side only
-    import('y-partykit').then(({ YPartyKitProvider }) => {
+    import('y-partykit/provider').then((mod) => {
+      // YPartyKitProvider is exported as default
+      type ProviderClass = new (host: string, room: string, doc: Y.Doc) => YPartyKitProvider;
+      const YPartyKitProvider = mod.default as unknown as ProviderClass;
       const host = 'collab-md.markj81.partykit.dev';
-      const provider = new YPartyKitProvider(host, documentId, ydoc) as unknown as YPartyKitProvider;
+      const provider = new YPartyKitProvider(host, documentId, ydoc);
       providerRef.current = provider;
       awarenessRef.current = provider.awareness;
 
