@@ -30,10 +30,17 @@ export default function Home() {
     setCreating(true);
     try {
       const res = await fetch('/api/documents', { method: 'POST' });
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || 'Failed to create document');
+      }
       const data = await res.json();
-      window.location.href = `/editor/${data.id}`;
+      if (data.id) {
+        window.location.href = `/editor/${data.id}`;
+      }
     } catch (error) {
       console.error('Failed to create document:', error);
+      alert('Failed to create document. Please try again.');
       setCreating(false);
     }
   };
@@ -41,10 +48,15 @@ export default function Home() {
   const deleteDocument = async (id: string) => {
     if (!confirm('Are you sure you want to delete this document?')) return;
     try {
-      await fetch(`/api/documents/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/documents/${id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || 'Failed to delete document');
+      }
       setDocuments(documents.filter((d) => d.id !== id));
     } catch (error) {
       console.error('Failed to delete document:', error);
+      alert('Failed to delete document. Please try again.');
     }
   };
 

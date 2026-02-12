@@ -24,16 +24,20 @@ export async function POST(request: NextRequest) {
     const id = generateId();
     const shareToken = generateShareToken();
 
-    createDocument({
+    const newDoc = createDocument({
       id,
       title: 'Untitled.md',
       content: '',
       shareToken,
     });
 
+    if (!newDoc) {
+      return NextResponse.json({ error: 'Failed to create document' }, { status: 500 });
+    }
+
     return NextResponse.json({ id, shareToken });
   } catch (error) {
     console.error('Error creating document:', error);
-    return NextResponse.json({ error: 'Failed to create document' }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Failed to create document' }, { status: 500 });
   }
 }
