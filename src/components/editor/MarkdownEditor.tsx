@@ -71,7 +71,7 @@ export function MarkdownEditor({
 
     // Add Y.js collaboration only when yText is provided (collaboration mode)
     if (yText !== undefined) {
-      extensions.push(yCollab(yText));
+      extensions.push(yCollab(yText, null) as Extension);
     }
 
     const state = EditorState.create({
