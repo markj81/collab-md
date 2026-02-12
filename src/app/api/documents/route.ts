@@ -4,7 +4,7 @@ import { generateId, generateShareToken } from '@/lib/utils';
 
 export async function GET() {
   try {
-    const allDocs = getDocuments();
+    const allDocs = await getDocuments();
     // Return simplified list (without content)
     const list = allDocs.map(doc => ({
       id: doc.id,
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     const id = generateId();
     const shareToken = generateShareToken();
 
-    const newDoc = createDocument({
+    const newDoc = await createDocument({
       id,
       title: 'Untitled.md',
       content: '',

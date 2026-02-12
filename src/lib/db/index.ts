@@ -1,23 +1,36 @@
-import fs from 'fs';
-import path from 'path';
+import Redis from 'ioredis';
 
-// Use /tmp for ephemeral storage on Vercel (data won't persist between deployments)
-// For production persistence, use Vercel KV or Neon PostgreSQL
-const DATA_DIR = process.env.VERCEL ? '/tmp/data' : path.join(process.cwd(), 'data');
-const DB_FILE = path.join(DATA_DIR, 'documents.json');
-
-// Ensure data directory exists
-function ensureDir() {
-  try {
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
-    }
-  } catch (e) {
-    console.error('Error creating data directory:', e);
-  }
+// Global Redis client (cached across HMR in development)
+declare global {
+  var redis: Redis | undefined;
 }
 
-// Simple file-based database for serverless (ephemeral on Vercel)
+// Key prefix for namespace
+const DOCS_KEY = 'collab-md:documents';
+const DOC_KEY = (id: string) => `collab-md:doc:${id}`;
+
+// Lazy Redis client initialization
+let redisClient: Redis | null = null;
+
+function getRedisClient(): Redis {
+  if (redisClient) return redisClient;
+
+  if (process.env.KV_URL) {
+    redisClient = new Redis(process.env.KV_URL);
+  } else {
+    if (!global.redis) {
+      global.redis = new Redis(process.env.LOCAL_KV_URL || 'redis://localhost:6379');
+    }
+    redisClient = global.redis as Redis;
+  }
+  return redisClient;
+}
+
+function useRedis<T>(fn: (redis: Redis) => Promise<T>): Promise<T> {
+  const redis = getRedisClient();
+  return fn(redis);
+}
+
 interface Document {
   id: string;
   title: string;
@@ -27,76 +40,131 @@ interface Document {
   updatedAt: string;
 }
 
-function readDb(): Record<string, Document> {
-  ensureDir();
+export async function getDocuments(): Promise<Document[]> {
   try {
-    if (fs.existsSync(DB_FILE)) {
-      const data = fs.readFileSync(DB_FILE, 'utf-8');
-      return JSON.parse(data);
-    }
-  } catch (e) {
-    console.error('Error reading DB:', e);
+    const ids = await useRedis(async (redis) => await redis.smembers(DOCS_KEY));
+    if (ids.length === 0) return [];
+
+    const pipeline = (await useRedis(async (redis) => {
+      const pipe = redis.pipeline();
+      ids.forEach((id) => {
+        pipe.get(DOC_KEY(id));
+      });
+      return pipe.exec();
+    })) as Array<[Error | null, string | null]>;
+
+    const documents: Document[] = [];
+
+    pipeline.forEach(([err, value]) => {
+      if (!err && value) {
+        try {
+          documents.push(JSON.parse(value));
+        } catch (e) {
+          console.error('Error parsing document:', e);
+        }
+      }
+    });
+
+    return documents.sort((a, b) =>
+      new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    );
+  } catch (error) {
+    console.error('Error fetching documents:', error);
+    return [];
   }
-  return {};
 }
 
-function writeDb(data: Record<string, Document>): boolean {
-  ensureDir();
+export async function getDocument(id: string): Promise<Document | null> {
   try {
-    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
+    const data = await useRedis(async (redis) => await redis.get(DOC_KEY(id)));
+    return data ? JSON.parse(data) : null;
+  } catch (error) {
+    console.error('Error fetching document:', error);
+    return null;
+  }
+}
+
+export async function createDocument(doc: Omit<Document, 'createdAt' | 'updatedAt'>): Promise<Document | null> {
+  try {
+    const now = new Date().toISOString();
+    const newDoc: Document = {
+      ...doc,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    await useRedis(async (redis) => {
+      const pipeline = redis.pipeline();
+      pipeline.set(DOC_KEY(doc.id), JSON.stringify(newDoc));
+      pipeline.sadd(DOCS_KEY, doc.id);
+      await pipeline.exec();
+    });
+
+    return newDoc;
+  } catch (error) {
+    console.error('Error creating document:', error);
+    return null;
+  }
+}
+
+export async function updateDocument(
+  id: string,
+  updates: Partial<Omit<Document, 'id' | 'createdAt'>>
+): Promise<Document | null> {
+  try {
+    const existing = await getDocument(id);
+    if (!existing) return null;
+
+    const now = new Date().toISOString();
+    const updated: Document = {
+      ...existing,
+      ...updates,
+      updatedAt: now,
+    };
+
+    await useRedis(async (redis) => {
+      await redis.set(DOC_KEY(id), JSON.stringify(updated));
+    });
+
+    return updated;
+  } catch (error) {
+    console.error('Error updating document:', error);
+    return null;
+  }
+}
+
+export async function deleteDocument(id: string): Promise<boolean> {
+  try {
+    await useRedis(async (redis) => {
+      const pipeline = redis.pipeline();
+      pipeline.del(DOC_KEY(id));
+      pipeline.srem(DOCS_KEY, id);
+      await pipeline.exec();
+    });
     return true;
-  } catch (e) {
-    console.error('Error writing DB:', e);
+  } catch (error) {
+    console.error('Error deleting document:', error);
     return false;
   }
 }
 
-export function getDocuments(): Document[] {
-  const db = readDb();
-  return Object.values(db);
-}
+export async function getDocumentByShareToken(token: string): Promise<Document | null> {
+  try {
+    const ids = await useRedis(async (redis) => await redis.smembers(DOCS_KEY));
+    if (ids.length === 0) return null;
 
-export function getDocument(id: string): Document | null {
-  const db = readDb();
-  return db[id] || null;
-}
-
-export function createDocument(doc: Omit<Document, 'createdAt' | 'updatedAt'>): Document | null {
-  const db = readDb();
-  const now = new Date().toISOString();
-  const newDoc: Document = {
-    ...doc,
-    createdAt: now,
-    updatedAt: now,
-  };
-  db[doc.id] = newDoc;
-  if (!writeDb(db)) {
-    console.error('Failed to persist document to file');
+    for (const id of ids) {
+      const data = await useRedis(async (redis) => await redis.get(DOC_KEY(id)));
+      if (data) {
+        const doc = JSON.parse(data) as Document;
+        if (doc.shareToken === token) {
+          return doc;
+        }
+      }
+    }
+    return null;
+  } catch (error) {
+    console.error('Error fetching document by token:', error);
+    return null;
   }
-  return newDoc;
-}
-
-export function updateDocument(id: string, updates: Partial<Omit<Document, 'id' | 'createdAt'>>): Document | null {
-  const db = readDb();
-  if (!db[id]) return null;
-  const now = new Date().toISOString();
-  db[id] = {
-    ...db[id],
-    ...updates,
-    updatedAt: now,
-  };
-  writeDb(db);
-  return db[id];
-}
-
-export function deleteDocument(id: string): boolean {
-  const db = readDb();
-  if (!db[id]) return false;
-  delete db[id];
-  return writeDb(db);
-}
-
-export function getDocumentByShareToken(token: string): Document | null {
-  const db = readDb();
-  return Object.values(db).find(doc => doc.shareToken === token) || null;
 }

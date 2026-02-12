@@ -8,7 +8,7 @@ export async function GET(
   const { id } = await params;
 
   try {
-    const doc = getDocument(id);
+    const doc = await getDocument(id);
 
     if (!doc) {
       return NextResponse.json({ error: 'Document not found' }, { status: 404 });
@@ -35,7 +35,7 @@ export async function PUT(
     if (title !== undefined) updates.title = title;
     if (content !== undefined) updates.content = content;
 
-    const doc = updateDocument(id, updates);
+    const doc = await updateDocument(id, updates);
 
     if (!doc) {
       return NextResponse.json({ error: 'Document not found' }, { status: 404 });
@@ -55,7 +55,7 @@ export async function DELETE(
   const { id } = await params;
 
   try {
-    const success = deleteDocument(id);
+    const success = await deleteDocument(id);
 
     if (!success) {
       return NextResponse.json({ error: 'Document not found' }, { status: 404 });

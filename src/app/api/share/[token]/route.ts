@@ -5,7 +5,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const { token } = await params;
 
   try {
-    const doc = getDocumentByShareToken(token);
+    const doc = await getDocumentByShareToken(token);
 
     if (!doc) {
       return NextResponse.json({ error: 'Document not found' }, { status: 404 });

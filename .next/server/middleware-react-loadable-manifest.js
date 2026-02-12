@@ -1,1 +1,1 @@
-self.__REACT_LOADABLE_MANIFEST="{\"hooks/use-collaboration.ts -> y-partykit/provider\":{\"id\":\"hooks/use-collaboration.ts -> y-partykit/provider\",\"files\":[\"static/chunks/_app-pages-browser_node_modules_y-partykit_dist_provider_mjs.js\"]}}"
+self.__REACT_LOADABLE_MANIFEST='{"hooks/use-collaboration.ts -> y-partykit/provider":{"id":6677,"files":["static/chunks/677.e04400abd10a27fb.js"]}}';
