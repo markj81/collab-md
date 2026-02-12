@@ -16,7 +16,7 @@ interface UserPresence {
   };
 }
 
-interface WebsocketProvider {
+interface YPartyKitProvider {
   on: (event: string, callback: (...args: unknown[]) => void) => void;
   awareness: {
     on: (event: string, callback: () => void) => void;
@@ -35,14 +35,13 @@ const getRandomUser = () => ({
 
 export function useCollaboration({
   documentId,
-  wsUrl = 'ws://localhost:1234',
 }: UseCollaborationOptions) {
   const ydocRef = useRef<Y.Doc | null>(null);
   const [yText, setYText] = useState<Y.Text | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [users, setUsers] = useState<UserPresence[]>([]);
-  const wsProviderRef = useRef<WebsocketProvider | null>(null);
-  const awarenessRef = useRef<WebsocketProvider['awareness'] | null>(null);
+  const providerRef = useRef<YPartyKitProvider | null>(null);
+  const awarenessRef = useRef<YPartyKitProvider['awareness'] | null>(null);
 
   // Set user info function
   const setUserInfo = useCallback((name: string, color: string) => {
@@ -62,23 +61,22 @@ export function useCollaboration({
     setYText(ytext);
 
     // Dynamic import for client-side only
-    import('y-websocket').then(({ WebsocketProvider }) => {
-      const wsProvider = new WebsocketProvider(wsUrl, documentId, ydoc, {
-        connect: true,
-      }) as unknown as WebsocketProvider;
-      wsProviderRef.current = wsProvider;
-      awarenessRef.current = wsProvider.awareness;
+    import('y-partykit').then(({ YPartyKitProvider }) => {
+      const host = 'collab-md.markj81.partykit.dev';
+      const provider = new YPartyKitProvider(host, documentId, ydoc) as unknown as YPartyKitProvider;
+      providerRef.current = provider;
+      awarenessRef.current = provider.awareness;
 
       // Set random user info
       const user = getRandomUser();
-      wsProvider.awareness.setLocalStateField('user', user);
+      provider.awareness.setLocalStateField('user', user);
 
-      wsProvider.on('status', (event: unknown) => {
-        setIsConnected((event as { status: string }).status === 'connected');
+      provider.on('sync', (synced: unknown) => {
+        setIsConnected(synced as boolean);
       });
 
-      wsProvider.awareness.on('change', () => {
-        const states = wsProvider.awareness.getStates();
+      provider.awareness.on('change', () => {
+        const states = provider.awareness.getStates();
         const userList: UserPresence[] = [];
         states.forEach((state, clientId) => {
           if (state.user) {
@@ -93,13 +91,13 @@ export function useCollaboration({
     });
 
     return () => {
-      if (wsProviderRef.current) {
-        wsProviderRef.current.destroy();
-        wsProviderRef.current = null;
+      if (providerRef.current) {
+        providerRef.current.destroy();
+        providerRef.current = null;
         awarenessRef.current = null;
       }
     };
-  }, [documentId, wsUrl]);
+  }, [documentId]);
 
   return {
     ydoc: ydocRef.current,

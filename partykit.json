@@ -1,0 +1,5 @@
+{
+  "name": "collab-md",
+  "main": "src/server/party.ts",
+  "compatibilityDate": "2025-02-12"
+}

@@ -1,8 +1,8 @@
 {
-  "hooks/use-collaboration.ts -> y-websocket": {
-    "id": "hooks/use-collaboration.ts -> y-websocket",
+  "hooks/use-collaboration.ts -> y-partykit": {
+    "id": "hooks/use-collaboration.ts -> y-partykit",
     "files": [
-      "static/chunks/_app-pages-browser_node_modules_y-websocket_src_y-websocket_js.js"
+      "static/chunks/_app-pages-browser_node_modules_y-partykit_dist_index_mjs.js"
     ]
   }
 }
