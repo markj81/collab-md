@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
 type Theme = 'light' | 'dark';
 
@@ -16,37 +16,43 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>('light');
   const [mounted, setMounted] = useState(false);
 
-  // Load saved theme on mount
   useEffect(() => {
     setMounted(true);
     const saved = localStorage.getItem('collabmd-theme') as Theme | null;
-    if (saved) {
-      setThemeState(saved);
-      document.documentElement.classList.toggle('dark', saved === 'dark');
-    } else {
-      // Check system preference
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const initial = prefersDark ? 'dark' : 'light';
-      setThemeState(initial);
-      document.documentElement.classList.toggle('dark', initial === 'dark');
-    }
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initial = saved || (prefersDark ? 'dark' : 'light');
+    setThemeState(initial);
+    document.documentElement.classList.toggle('dark', initial === 'dark');
   }, []);
 
-  const setTheme = useCallback((newTheme: Theme) => {
+  const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
     localStorage.setItem('collabmd-theme', newTheme);
     document.documentElement.classList.toggle('dark', newTheme === 'dark');
-  }, []);
+  };
 
-  const toggleTheme = useCallback(() => {
-    setThemeState((prevTheme) => {
-      const newTheme = prevTheme === 'light' ? 'dark' : 'light';
-      setTheme(newTheme);
+  const toggleTheme = () => {
+    setThemeState((prev) => {
+      const newTheme = prev === 'light' ? 'dark' : 'light';
+      document.documentElement.classList.toggle('dark', newTheme === 'dark');
       return newTheme;
     });
-  }, [setTheme]);
+  };
 
-  // Return light theme initially to prevent flash, but apply real theme after mount
+  // Before mounted, use system preference
+  if (!mounted) {
+    const prefersDark = typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initial = prefersDark ? 'dark' : 'light';
+    if (initial === 'dark') {
+      document.documentElement.classList.add('dark');
+    }
+    return (
+      <ThemeContext.Provider value={{ theme: initial, toggleTheme, setTheme }}>
+        {children}
+      </ThemeContext.Provider>
+    );
+  }
+
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
       {children}
