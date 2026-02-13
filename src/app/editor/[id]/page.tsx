@@ -254,8 +254,8 @@ export default function EditorPage() {
         </div>
       </header>
 
-      <div className="flex-1 flex overflow-hidden">
-        <div className={`flex-1 flex flex-col ${showPreview ? 'w-1/2' : 'w-full'}`}>
+      <div className="flex-1 flex overflow-y-auto">
+        <div className={`flex-1 flex flex-col min-w-0 ${showPreview ? 'w-1/2' : 'w-full'}`}>
           <MarkdownEditor
             key={documentId}
             documentId={documentId}
@@ -266,7 +266,7 @@ export default function EditorPage() {
           />
         </div>
         {showPreview && (
-          <div className="w-1/2 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111] overflow-auto">
+          <div className="w-1/2 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111] overflow-auto flex-shrink-0">
             <MarkdownPreview content={content} />
           </div>
         )}
