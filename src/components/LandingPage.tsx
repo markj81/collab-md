@@ -9,38 +9,34 @@ export function LandingPage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#101112] text-slate-900 dark:text-white overflow-hidden">
-      {/* Animated Halftone Gradient */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/3 via-transparent to-purple-500/3 animate-gradient" />
-        <svg className="absolute inset-0 w-full h-full opacity-40" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice">
+      {/* Animated Halftone Gradient - Subtle */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden opacity-25 dark:opacity-10 mix-blend-screen">
+        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice">
           <defs>
-            <pattern id="halftone" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
-              <circle cx="15" cy="15" r="12" fill="#a855f7">
-                <animate attributeName="r" values="10;14;10" dur="3s" repeatCount="indefinite" />
-                <animate attributeName="opacity" values="0.3;0.6;0.3" dur="3s" repeatCount="indefinite" />
+            <pattern id="halftone" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+              <circle cx="30" cy="30" r="4" fill="#a855f7" opacity="0.08">
+                <animate attributeName="r" values="3;5;3" dur="6s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.04;0.08;0.04" dur="6s" repeatCount="indefinite" />
               </circle>
-              <circle cx="0" cy="0" r="8" fill="#a855f7">
-                <animate attributeName="r" values="6;9;6" dur="2.5s" repeatCount="indefinite" begin="0.3s" />
-                <animate attributeName="opacity" values="0.2;0.5;0.2" dur="2.5s" repeatCount="indefinite" begin="0.3s" />
+              <circle cx="0" cy="0" r="3" fill="#a855f7" opacity="0.05">
+                <animate attributeName="r" values="2;3;2" dur="5s" repeatCount="indefinite" begin="0.5s" />
+                <animate attributeName="opacity" values="0.03;0.05;0.03" dur="5s" repeatCount="indefinite" begin="0.5s" />
               </circle>
-              <circle cx="30" cy="0" r="8" fill="#a855f7">
-                <animate attributeName="r" values="6;9;6" dur="2.8s" repeatCount="indefinite" begin="0.6s" />
-                <animate attributeName="opacity" values="0.2;0.5;0.2" dur="2.8s" repeatCount="indefinite" begin="0.6s" />
+              <circle cx="60" cy="0" r="3" fill="#a855f7" opacity="0.05">
+                <animate attributeName="r" values="2;3;2" dur="5.5s" repeatCount="indefinite" begin="1s" />
+                <animate attributeName="opacity" values="0.03;0.05;0.03" dur="5.5s" repeatCount="indefinite" begin="1s" />
               </circle>
-              <circle cx="0" cy="30" r="8" fill="#a855f7">
-                <animate attributeName="r" values="6;9;6" dur="2.6s" repeatCount="indefinite" begin="0.9s" />
-                <animate attributeName="opacity" values="0.2;0.5;0.2" dur="2.6s" repeatCount="indefinite" begin="0.9s" />
+              <circle cx="0" cy="60" r="3" fill="#a855f7" opacity="0.05">
+                <animate attributeName="r" values="2;3;2" dur="4.8s" repeatCount="indefinite" begin="1.5s" />
+                <animate attributeName="opacity" values="0.03;0.05;0.03" dur="4.8s" repeatCount="indefinite" begin="1.5s" />
               </circle>
-              <circle cx="30" cy="30" r="8" fill="#a855f7">
-                <animate attributeName="r" values="6;9;6" dur="2.7s" repeatCount="indefinite" begin="1.2s" />
-                <animate attributeName="opacity" values="0.2;0.5;0.2" dur="2.7s" repeatCount="indefinite" begin="1.2s" />
+              <circle cx="60" cy="60" r="3" fill="#a855f7" opacity="0.05">
+                <animate attributeName="r" values="2;3;2" dur="5.2s" repeatCount="indefinite" begin="2s" />
+                <animate attributeName="opacity" values="0.03;0.05;0.03" dur="5.2s" repeatCount="indefinite" begin="2s" />
               </circle>
             </pattern>
-            <mask id="gradient-mask">
-              <rect width="100%" height="100%" fill="url(#gradient-stop)" />
-            </mask>
           </defs>
-          <rect width="100%" height="100%" fill="url(#halftone)" style={{ transform: 'translateX(-25%)', animation: 'halftone-move 20s linear infinite' }} />
+          <rect width="100%" height="100%" fill="url(#halftone)" />
         </svg>
       </div>
 
