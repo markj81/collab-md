@@ -58,6 +58,26 @@ body {
   animation: slide-in 0.3s ease-out;
 }
 
+@keyframes halftone-move {
+  0% { transform: translateX(-25%) translateY(0); }
+  50% { transform: translateX(0%) translateY(-10%); }
+  100% { transform: translateX(-25%) translateY(0); }
+}
+
+@keyframes gradient {
+  0% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+  100% { opacity: 0.3; }
+}
+
+.animate-halftone {
+  animation: halftone-move 20s linear infinite;
+}
+
+.animate-gradient {
+  animation: gradient 8s ease-in-out infinite;
+}
+
 /* CodeMirror */
 .cm-editor { height: 100%; }
 .cm-scroller { overflow: auto; }

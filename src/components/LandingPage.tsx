@@ -8,7 +8,42 @@ export function LandingPage() {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#101112] text-slate-900 dark:text-white">
+    <div className="min-h-screen bg-white dark:bg-[#101112] text-slate-900 dark:text-white overflow-hidden">
+      {/* Animated Halftone Gradient */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/3 via-transparent to-purple-500/3 animate-gradient" />
+        <svg className="absolute inset-0 w-full h-full opacity-40" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <pattern id="halftone" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+              <circle cx="15" cy="15" r="12" fill="#a855f7">
+                <animate attributeName="r" values="10;14;10" dur="3s" repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.3;0.6;0.3" dur="3s" repeatCount="indefinite" />
+              </circle>
+              <circle cx="0" cy="0" r="8" fill="#a855f7">
+                <animate attributeName="r" values="6;9;6" dur="2.5s" repeatCount="indefinite" begin="0.3s" />
+                <animate attributeName="opacity" values="0.2;0.5;0.2" dur="2.5s" repeatCount="indefinite" begin="0.3s" />
+              </circle>
+              <circle cx="30" cy="0" r="8" fill="#a855f7">
+                <animate attributeName="r" values="6;9;6" dur="2.8s" repeatCount="indefinite" begin="0.6s" />
+                <animate attributeName="opacity" values="0.2;0.5;0.2" dur="2.8s" repeatCount="indefinite" begin="0.6s" />
+              </circle>
+              <circle cx="0" cy="30" r="8" fill="#a855f7">
+                <animate attributeName="r" values="6;9;6" dur="2.6s" repeatCount="indefinite" begin="0.9s" />
+                <animate attributeName="opacity" values="0.2;0.5;0.2" dur="2.6s" repeatCount="indefinite" begin="0.9s" />
+              </circle>
+              <circle cx="30" cy="30" r="8" fill="#a855f7">
+                <animate attributeName="r" values="6;9;6" dur="2.7s" repeatCount="indefinite" begin="1.2s" />
+                <animate attributeName="opacity" values="0.2;0.5;0.2" dur="2.7s" repeatCount="indefinite" begin="1.2s" />
+              </circle>
+            </pattern>
+            <mask id="gradient-mask">
+              <rect width="100%" height="100%" fill="url(#gradient-stop)" />
+            </mask>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#halftone)" style={{ transform: 'translateX(-25%)', animation: 'halftone-move 20s linear infinite' }} />
+        </svg>
+      </div>
+
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#101112]/80 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800">
         <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">

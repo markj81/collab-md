@@ -19,8 +19,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setMounted(true);
     const saved = localStorage.getItem('collabmd-theme') as Theme | null;
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initial = saved || (prefersDark ? 'dark' : 'light');
+    // Default to dark mode, fall back to saved preference or light
+    const initial = saved || 'dark';
     setThemeState(initial);
     document.documentElement.classList.toggle('dark', initial === 'dark');
   }, []);
