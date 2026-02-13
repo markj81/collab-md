@@ -205,7 +205,7 @@ export default function EditorPage() {
               </div>
             )}
 
-            <div className="flex items-center gap-0.5 p-0.5 bg-slate-100 dark:bg-slate-800 rounded-lg">
+            <div className="flex items-center gap-0.5 p-0.5 bg-slate-100 dark:bg-slate-800 rounded-lg md:hidden">
               <button
                 onClick={() => setActiveTab('write')}
                 className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
@@ -256,7 +256,7 @@ export default function EditorPage() {
 
       <div className="flex-1 flex overflow-y-auto">
         {/* Editor - hidden on mobile when preview tab is active */}
-        <div className={`flex-1 flex flex-col min-w-0 ${activeTab === 'preview' ? 'hidden md:flex' : 'flex'}`}>
+        <div className={`flex-1 flex flex-col min-w-0 ${activeTab === 'preview' ? 'hidden md:block' : 'block'} md:w-1/2`}>
           <MarkdownEditor
             key={documentId}
             documentId={documentId}
