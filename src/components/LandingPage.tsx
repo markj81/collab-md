@@ -2,8 +2,11 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { SignInButton, SignUpButton } from '@clerk/nextjs';
+import { useTheme } from '@/components/ThemeProvider';
 
 export function LandingPage() {
+  const { theme, toggleTheme } = useTheme();
+
   return (
     <div className="min-h-screen bg-white dark:bg-[#101112] text-slate-900 dark:text-white">
       {/* Header */}
@@ -18,13 +21,29 @@ export function LandingPage() {
             <span className="text-sm font-medium text-slate-900 dark:text-white">CollabMD</span>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={toggleTheme}
+              className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors rounded-md hover:bg-slate-100 dark:hover:bg-slate-800"
+              aria-label="Toggle theme"
+            >
+              {theme === 'light' ? (
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+              ) : (
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              )}
+            </button>
+            <div className="w-px h-4 bg-slate-200 dark:bg-slate-800 mx-1" />
             <SignInButton mode="modal">
-              <button className="px-3 py-1.5 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+              <button className="px-2 py-1 text-xs font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white rounded transition-colors">
                 Sign in
               </button>
             </SignInButton>
             <SignUpButton mode="modal">
-              <button className="px-3 py-1.5 text-sm bg-slate-900 dark:bg-white text-white dark:text-black rounded-md hover:opacity-90 transition-opacity">
+              <button className="px-2 py-1 text-xs font-medium rounded transition-colors bg-slate-900 dark:bg-white text-white dark:text-black hover:opacity-90">
                 Get started
               </button>
             </SignUpButton>
@@ -53,29 +72,29 @@ export function LandingPage() {
 
         {/* Editor Preview */}
         <div className="max-w-5xl mx-auto px-6 mt-16">
-          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0d0d0e] overflow-hidden shadow-2xl shadow-slate-200/50 dark:shadow-black/50">
-            <div className="flex items-center gap-1.5 px-4 py-3 border-b border-slate-200 dark:border-slate-800">
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#141414] overflow-hidden shadow-xl shadow-slate-200/20 dark:shadow-black/40">
+            <div className="flex items-center gap-1.5 px-4 py-3 border-b border-slate-200 dark:border-slate-800/50">
               <div className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700" />
               <div className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700" />
               <div className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700" />
             </div>
-            <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-200 dark:divide-slate-800">
+            <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-200 dark:divide-slate-800/50">
               {/* Editor */}
               <div className="p-6 font-mono text-sm">
-                <div className="text-slate-400 mb-2"># Project Roadmap</div>
-                <div className="text-slate-400 mb-1">## Q1</div>
-                <div className="text-slate-700 dark:text-slate-300">- Launch beta</div>
-                <div className="text-slate-700 dark:text-slate-300 ml-4 text-slate-500">→ Research complete</div>
-                <div className="text-slate-700 dark:text-slate-300">- User research</div>
-                <div className="text-slate-500 mt-1 animate-pulse">|</div>
+                <div className="text-slate-400/80 mb-2"># Project Roadmap</div>
+                <div className="text-slate-400/80 mb-1">## Q1</div>
+                <div className="text-slate-700 dark:text-slate-300/90">- Launch beta</div>
+                <div className="text-slate-700 dark:text-slate-300/90 ml-4 text-slate-500">→ Research complete</div>
+                <div className="text-slate-700 dark:text-slate-300/90">- User research</div>
+                <div className="text-slate-500/60 mt-1 animate-pulse">|</div>
               </div>
               {/* Preview */}
               <div className="p-6 prose prose-slate dark:prose-invert prose-sm max-w-none">
-                <h1 className="!text-lg !font-medium !mb-2">Project Roadmap</h1>
+                <h1 className="!text-lg !font-medium !mb-2 text-slate-900 dark:text-white">Project Roadmap</h1>
                 <h2 className="!text-base !font-normal !text-slate-500 !mb-1">Q1</h2>
                 <ul className="!my-0">
-                  <li>Launch beta <span className="text-green-500">✓</span></li>
-                  <li>User research <span className="text-amber-500">→</span></li>
+                  <li className="text-slate-700 dark:text-slate-300">Launch beta <span className="text-green-500">✓</span></li>
+                  <li className="text-slate-700 dark:text-slate-300">User research <span className="text-amber-500">→</span></li>
                 </ul>
               </div>
             </div>
