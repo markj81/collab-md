@@ -19,6 +19,8 @@ export function ShareButton({ shareUrl, documentTitle }: ShareButtonProps) {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const fullShareUrl = typeof window !== 'undefined' ? `${window.location.origin}/share/${shareUrl}` : '';
+
   return (
     <>
       <button
@@ -35,40 +37,78 @@ export function ShareButton({ shareUrl, documentTitle }: ShareButtonProps) {
       </button>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl animate-fade-in">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Share "{documentTitle}"</h3>
+              <h3 className="text-lg font-semibold text-slate-900">Share "{documentTitle}"</h3>
               <button
                 onClick={() => setShowModal(false)}
-                className="text-slate-400 hover:text-slate-600"
+                className="text-slate-400 hover:text-slate-600 transition-colors"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
-            <p className="text-sm text-slate-600 mb-4">
-              Anyone with this link can view and edit this document in real-time.
-            </p>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                readOnly
-                value={`${typeof window !== 'undefined' ? window.location.origin : ''}/share/${shareUrl}`}
-                className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-sm text-slate-600"
-              />
-              <button
-                onClick={handleCopy}
-                className={cn(
-                  'px-4 py-2 rounded-md text-sm font-medium transition-colors',
-                  copied
-                    ? 'bg-green-500 text-white'
-                    : 'bg-blue-600 text-white hover:bg-blue-700'
-                )}
-              >
-                {copied ? 'Copied!' : 'Copy'}
-              </button>
+
+            <div className="mb-4 p-4 bg-blue-50 rounded-lg">
+              <p className="text-sm text-blue-800">
+                <strong>Real-time collaboration:</strong> Anyone with this link can view and edit this document simultaneously with you.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Share Link
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={fullShareUrl}
+                    className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-600 truncate"
+                  />
+                  <button
+                    onClick={handleCopy}
+                    className={cn(
+                      'px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap',
+                      copied
+                        ? 'bg-green-500 text-white'
+                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                    )}
+                  >
+                    {copied ? (
+                      <span className="flex items-center gap-1">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        Copied!
+                      </span>
+                    ) : (
+                      'Copy Link'
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <button
+                  onClick={() => {
+                    handleCopy();
+                    setShowModal(false);
+                  }}
+                  className="flex-1 py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
+                >
+                  Copy & Close
+                </button>
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors font-medium text-sm"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>

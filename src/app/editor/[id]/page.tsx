@@ -23,13 +23,19 @@ export default function EditorPage() {
   const [document, setDocument] = useState<DocumentData | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [title, setTitle] = useState('');
   const [showPreview, setShowPreview] = useState(true);
   const [content, setContent] = useState('');
+  const [wordCount, setWordCount] = useState({ words: 0, chars: 0 });
 
   // Stable setContent for editor
   const handleContentChange = useCallback((newContent: string) => {
     setContent(newContent);
+  }, []);
+
+  const handleWordCountChange = useCallback((words: number, chars: number) => {
+    setWordCount({ words, chars });
   }, []);
 
   // Collaboration
@@ -77,6 +83,7 @@ export default function EditorPage() {
             content: newContent ?? content,
           }),
         });
+        setLastSaved(new Date());
       } catch (error) {
         console.error('Failed to save document:', error);
       } finally {
@@ -86,39 +93,17 @@ export default function EditorPage() {
     [documentId, title, content]
   );
 
-  // Auto-save every 30 seconds
+  // Auto-save on content change (saves 1 second after typing stops)
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (!loading) saveDocument();
-    }, 30000);
-    return () => clearInterval(interval);
-  }, [saveDocument, loading]);
+    if (loading || !content) return;
 
-  // Debounced auto-save on content change (saves 1 second after typing stops)
-  useEffect(() => {
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
     }
     saveTimeoutRef.current = setTimeout(() => {
-      if (!loading) saveDocument();
+      saveDocument();
     }, 1000);
-    return () => {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
-    };
-  }, [content, saveDocument, loading]);
 
-  // Debounced auto-save on content change
-  useEffect(() => {
-    if (saveTimeoutRef.current) {
-      clearTimeout(saveTimeoutRef.current);
-    }
-    saveTimeoutRef.current = setTimeout(() => {
-      if (!loading && content) {
-        saveDocument();
-      }
-    }, 2000);
     return () => {
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
@@ -129,7 +114,6 @@ export default function EditorPage() {
   const handleTitleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTitle = e.target.value;
     setTitle(newTitle);
-    // Debounced save for title
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
     }
@@ -143,10 +127,22 @@ export default function EditorPage() {
     router.push('/');
   };
 
+  // Format time since last save
+  const formatLastSaved = () => {
+    if (!lastSaved) return 'Not saved yet';
+    const seconds = Math.floor((Date.now() - lastSaved.getTime()) / 1000);
+    if (seconds < 5) return 'Just now';
+    if (seconds < 60) return `${seconds}s ago`;
+    return `${Math.floor(seconds / 60)}m ago`;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          <p className="text-slate-500">Loading document...</p>
+        </div>
       </div>
     );
   }
@@ -155,10 +151,10 @@ export default function EditorPage() {
     <div className="min-h-screen flex flex-col">
       <header className="bg-white border-b border-slate-200 flex-shrink-0">
         <div className="px-4 py-3 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 min-w-0">
             <button
               onClick={handleBack}
-              className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md transition-colors"
+              className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md transition-colors flex-shrink-0"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -168,15 +164,35 @@ export default function EditorPage() {
               type="text"
               value={title}
               onChange={handleTitleChange}
-              className="text-lg font-semibold text-slate-900 bg-transparent border-none outline-none focus:ring-0"
+              className="text-lg font-semibold text-slate-900 bg-transparent border-none outline-none focus:ring-0 min-w-0 truncate"
               placeholder="Untitled.md"
             />
-            {saving && (
-              <span className="text-xs text-slate-400">Saving...</span>
-            )}
+            <div className="flex items-center gap-2 text-xs text-slate-400 flex-shrink-0">
+              {saving ? (
+                <span className="flex items-center gap-1">
+                  <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Saving...
+                </span>
+              ) : (
+                <span className="flex items-center gap-1">
+                  <svg className="w-3 h-3 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  {formatLastSaved()}
+                </span>
+              )}
+            </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-shrink-0">
+            {/* Word count */}
+            <div className="text-xs text-slate-400 px-2">
+              {wordCount.words} words · {wordCount.chars} chars
+            </div>
+
             {/* Connected users */}
             {isConnected && users.length > 0 && (
               <div className="flex items-center gap-1">
@@ -191,10 +207,18 @@ export default function EditorPage() {
                   </div>
                 ))}
                 {users.length > 3 && (
-                  <span className="text-xs text-slate-500">+{users.length - 3}</span>
+                  <span className="text-xs text-slate-500 ml-1">+{users.length - 3}</span>
                 )}
               </div>
             )}
+
+            {/* Connection status */}
+            <div className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded-full ${
+              isConnected ? 'bg-green-50 text-green-700' : 'bg-slate-100 text-slate-500'
+            }`}>
+              <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-slate-400'}`} />
+              {isConnected ? 'Connected' : 'Offline'}
+            </div>
 
             <button
               onClick={() => setShowPreview(!showPreview)}
@@ -225,10 +249,11 @@ export default function EditorPage() {
             yText={yText || undefined}
             initialContent={content}
             onChange={handleContentChange}
+            onWordCountChange={handleWordCountChange}
           />
         </div>
         {showPreview && (
-          <div className="w-1/2 border-l border-slate-200 bg-white">
+          <div className="w-1/2 border-l border-slate-200 bg-white overflow-auto">
             <MarkdownPreview content={content} />
           </div>
         )}
