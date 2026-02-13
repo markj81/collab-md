@@ -35,13 +35,13 @@ function FloatingCursor({
     let time = 0;
 
     const animate = () => {
-      time += 0.02;
+      time += 0.008;
 
       // Randomly change angle slightly for smooth wandering
-      angle += (Math.random() - 0.5) * 0.5;
+      angle += (Math.random() - 0.5) * 0.3;
 
-      // Move in current direction
-      const speed = 0.15 + Math.random() * 0.1;
+      // Move in current direction - slower speed
+      const speed = 0.08 + Math.random() * 0.05;
       currentX += Math.cos(angle) * speed;
       currentY += Math.sin(angle) * speed;
 
@@ -55,8 +55,8 @@ function FloatingCursor({
         currentY = Math.max(10, Math.min(90, currentY));
       }
 
-      // Add subtle bobbing motion
-      const bob = Math.sin(time * 2) * 2;
+      // Add subtle bobbing motion - slower
+      const bob = Math.sin(time * 1) * 2;
 
       setPosition({ x: currentX, y: currentY + bob });
 
@@ -205,37 +205,34 @@ export function LandingPage() {
 
         {/* Editor Preview */}
         <div className="max-w-5xl mx-auto px-6 mt-16 relative">
-          {/* Floating Cursors */}
-          <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden rounded-xl">
-            {/* Bert - Blue Cursor */}
-            <FloatingCursor
-              name="Bert"
-              color="#3b82f6"
-              bgColor="#3b82f6"
-              startX={15}
-              startY={30}
-              duration={12}
-              delay={0}
-            />
-            {/* Mark - Purple Cursor */}
-            <FloatingCursor
-              name="Mark"
-              color="#a855f7"
-              bgColor="#a855f7"
-              startX={65}
-              startY={45}
-              duration={15}
-              delay={2}
-            />
-          </div>
-
-          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#141414] overflow-hidden shadow-xl shadow-slate-200/20 dark:shadow-black/40 relative z-0">
-            <div className="flex items-center gap-1.5 px-4 py-3 border-b border-slate-200 dark:border-slate-800/50">
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#141414] overflow-hidden shadow-xl shadow-slate-200/20 dark:shadow-black/40 relative">
+            {/* Floating Cursors overlay */}
+            <div className="absolute inset-0 pointer-events-none z-20">
+              <FloatingCursor
+                name="Bert"
+                color="#3b82f6"
+                bgColor="#3b82f6"
+                startX={20}
+                startY={35}
+                duration={12}
+                delay={0}
+              />
+              <FloatingCursor
+                name="Mark"
+                color="#a855f7"
+                bgColor="#a855f7"
+                startX={60}
+                startY={50}
+                duration={15}
+                delay={3}
+              />
+            </div>
+            <div className="flex items-center gap-1.5 px-4 py-3 border-b border-slate-200 dark:border-slate-800/50 relative z-10">
               <div className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700" />
               <div className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700" />
               <div className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700" />
             </div>
-            <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-200 dark:divide-slate-800/50">
+            <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-200 dark:divide-slate-800/50 relative z-10">
               {/* Editor */}
               <div className="p-6 font-mono text-sm">
                 <div className="text-slate-400/80 mb-2"># Project Roadmap</div>
