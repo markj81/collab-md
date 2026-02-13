@@ -9,6 +9,13 @@ import { DocumentListItem } from '@/types';
 
 type SortOption = 'updated' | 'created' | 'title';
 
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  const month = date.toLocaleDateString('en-US', { month: 'short' });
+  const day = date.getDate();
+  return `${month} ${day}`;
+}
+
 export default function Home() {
   const { isSignedIn, isLoaded: authLoaded } = useUser();
   const { theme, toggleTheme } = useTheme();
@@ -255,7 +262,7 @@ export default function Home() {
                   {doc.title}
                 </span>
                 <span className="text-xs text-slate-400 tabular-nums">
-                  {new Date(doc.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  {formatDate(doc.updatedAt)}
                 </span>
               </a>
             ))}
