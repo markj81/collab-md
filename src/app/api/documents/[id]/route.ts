@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDocument, updateDocument, deleteDocument } from '@/lib/db';
+import { auth } from '@clerk/nextjs/server';
+import { getDocument, updateDocument, deleteDocument, userOwnsDocument } from '@/lib/db';
 
 export async function GET(
   request: NextRequest,
@@ -8,10 +9,21 @@ export async function GET(
   const { id } = await params;
 
   try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const doc = await getDocument(id);
 
     if (!doc) {
       return NextResponse.json({ error: 'Document not found' }, { status: 404 });
+    }
+
+    // Check ownership - legacy docs without userId are accessible to all authenticated users
+    const ownsDoc = await userOwnsDocument(id, userId);
+    if (!ownsDoc && doc.userId !== null) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     return NextResponse.json(doc);
@@ -28,8 +40,19 @@ export async function PUT(
   const { id } = await params;
 
   try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { title, content } = body;
+
+    // Check ownership
+    const ownsDoc = await userOwnsDocument(id, userId);
+    if (!ownsDoc) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
     const updates: Record<string, unknown> = {};
     if (title !== undefined) updates.title = title;
@@ -55,6 +78,17 @@ export async function DELETE(
   const { id } = await params;
 
   try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Check ownership
+    const ownsDoc = await userOwnsDocument(id, userId);
+    if (!ownsDoc) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     const success = await deleteDocument(id);
 
     if (!success) {

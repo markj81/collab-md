@@ -1,8 +1,14 @@
 {
-  "hooks/use-collaboration.ts -> y-partykit/provider": {
-    "id": 6677,
+  "../node_modules/@clerk/nextjs/dist/esm/app-router/client/ClerkProvider.js -> ./keyless-creator-reader.js": {
+    "id": "../node_modules/@clerk/nextjs/dist/esm/app-router/client/ClerkProvider.js -> ./keyless-creator-reader.js",
     "files": [
-      "static/chunks/677.e04400abd10a27fb.js"
+      "static/chunks/_app-pages-browser_node_modules_clerk_nextjs_dist_esm_app-router_client_keyless-creator-reader_js.js"
+    ]
+  },
+  "hooks/use-collaboration.ts -> y-partykit/provider": {
+    "id": "hooks/use-collaboration.ts -> y-partykit/provider",
+    "files": [
+      "static/chunks/_app-pages-browser_node_modules_y-partykit_dist_provider_mjs.js"
     ]
   }
 }

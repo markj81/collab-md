@@ -64,11 +64,12 @@ interface Document {
   title: string;
   content: string | null;
   shareToken: string | null;
+  userId: string | null; // Clerk user ID for private documents
   createdAt: string;
   updatedAt: string;
 }
 
-export async function getDocuments(): Promise<Document[]> {
+export async function getDocuments(userId?: string): Promise<Document[]> {
   try {
     const ids = await withRedis(async (redis) => await redis.smembers(DOCS_KEY));
     if (!ids) return [];
@@ -93,6 +94,14 @@ export async function getDocuments(): Promise<Document[]> {
         }
       }
     });
+
+    // If userId provided, filter to only their documents (including legacy docs with null userId for backwards compatibility)
+    if (userId) {
+      const filtered = documents.filter(doc => doc.userId === userId || doc.userId === null);
+      return filtered.sort((a, b) =>
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      );
+    }
 
     return documents.sort((a, b) =>
       new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
@@ -181,6 +190,35 @@ export async function deleteDocument(id: string): Promise<boolean> {
   } catch (error) {
     console.error('Error deleting document:', error);
     return false;
+  }
+}
+
+export async function userOwnsDocument(docId: string, userId: string): Promise<boolean> {
+  try {
+    const doc = await getDocument(docId);
+    if (!doc) return false;
+    // User owns document if userId matches, or if document has no userId (legacy public docs)
+    return doc.userId === null || doc.userId === userId;
+  } catch (error) {
+    console.error('Error checking document ownership:', error);
+    return false;
+  }
+}
+
+export async function getDocumentForUser(id: string, userId: string): Promise<Document | null> {
+  try {
+    const doc = await getDocument(id);
+    if (!doc) return null;
+
+    // Allow access if document belongs to user OR has no userId (legacy/public docs)
+    if (doc.userId === null || doc.userId === userId) {
+      return doc;
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error fetching document:', error);
+    return null;
   }
 }
 

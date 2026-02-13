@@ -2,3 +2,6 @@ node_modules/
 .npm/
 data/
 .next/
+
+# clerk configuration (can include secrets)
+/.clerk/

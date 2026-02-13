@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
 import { getDocuments, createDocument } from '@/lib/db';
 import { generateId, generateShareToken } from '@/lib/utils';
 
 export async function GET() {
   try {
-    const allDocs = await getDocuments();
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const allDocs = await getDocuments(userId);
     // Return simplified list (without content)
     const list = allDocs.map(doc => ({
       id: doc.id,
@@ -21,6 +27,11 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const id = generateId();
     const shareToken = generateShareToken();
 
@@ -29,6 +40,7 @@ export async function POST(request: NextRequest) {
       title: 'Untitled.md',
       content: '',
       shareToken,
+      userId,
     });
 
     if (!newDoc) {
