@@ -202,7 +202,7 @@ export function MarkdownEditor({
 
   return (
     <div className={`editor-container flex flex-col h-full ${theme === 'dark' ? 'dark-mode' : ''}`}>
-      <div className="toolbar flex items-center gap-1 p-2 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#1a1a1a] flex-wrap">
+      <div className="toolbar sticky top-0 z-10 flex items-center gap-1 p-2 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#1a1a1a] flex-wrap">
         <div className="flex items-center gap-0.5 pr-2 border-r border-slate-300 dark:border-slate-600">
           <button onClick={toggleBold} className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded font-bold text-sm text-slate-700 dark:text-slate-300">B</button>
           <button onClick={toggleItalic} className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded italic text-sm text-slate-700 dark:text-slate-300">I</button>
