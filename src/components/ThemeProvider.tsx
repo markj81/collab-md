@@ -34,6 +34,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const toggleTheme = () => {
     setThemeState((prev) => {
       const newTheme = prev === 'light' ? 'dark' : 'light';
+      localStorage.setItem('collabmd-theme', newTheme);
       document.documentElement.classList.toggle('dark', newTheme === 'dark');
       return newTheme;
     });

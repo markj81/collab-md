@@ -250,21 +250,37 @@ export default function Home() {
         ) : (
           <div className="border border-slate-100 dark:border-slate-800 rounded-lg overflow-hidden">
             {filteredAndSortedDocuments.map((doc) => (
-              <a
+              <div
                 key={doc.id}
-                href={`/editor/${doc.id}`}
                 className="flex items-center gap-3 px-3 py-2.5 border-b border-slate-100 dark:border-slate-800 last:border-0 hover:bg-slate-50 dark:hover:bg-[#1c1c1f] transition-colors group"
               >
-                <svg className="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <span className="flex-1 text-sm text-slate-900 dark:text-white truncate group-hover:text-slate-700 dark:group-hover:text-slate-300">
-                  {doc.title}
-                </span>
-                <span className="text-xs text-slate-400 tabular-nums">
-                  {formatDate(doc.updatedAt)}
-                </span>
-              </a>
+                <a
+                  href={`/editor/${doc.id}`}
+                  className="flex-1 flex items-center gap-3 min-w-0"
+                >
+                  <svg className="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <span className="flex-1 text-sm text-slate-900 dark:text-white truncate group-hover:text-slate-700 dark:group-hover:text-slate-300">
+                    {doc.title}
+                  </span>
+                  <span className="text-xs text-slate-400 tabular-nums flex-shrink-0">
+                    {formatDate(doc.updatedAt)}
+                  </span>
+                </a>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    deleteDocument(doc.id);
+                  }}
+                  className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-red-500 transition-all"
+                  title="Delete document"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
             ))}
           </div>
         )}
