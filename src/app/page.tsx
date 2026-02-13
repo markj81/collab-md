@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { useUser, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs';
 import { DocumentList } from '@/components/DocumentList';
+import { LandingPage } from '@/components/LandingPage';
 import { DocumentListItem } from '@/types';
 import { formatDate } from '@/lib/utils';
 
@@ -141,6 +142,16 @@ export default function Home() {
     </div>
   );
 
+  // Show landing page for logged out users
+  if (!isSignedIn && authLoaded) {
+    return <LandingPage />;
+  }
+
+  // Show landing page for unauthenticated users
+  if (!isSignedIn && authLoaded) {
+    return <LandingPage />;
+  }
+
   return (
     <div className="min-h-screen">
       <header className="bg-white border-b border-slate-200">
@@ -151,43 +162,26 @@ export default function Home() {
             </svg>
             <h1 className="text-xl font-semibold text-slate-900">CollabMD</h1>
           </div>
-          {authLoaded && (
-            isSignedIn ? (
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={createDocument}
-                  disabled={creating}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors font-medium"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  {creating ? 'Creating...' : 'New Document'}
-                </button>
-                <UserButton
-                  afterSignOutUrl="/"
-                  appearance={{
-                    elements: {
-                      avatarBox: 'w-8 h-8'
-                    }
-                  }}
-                />
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <SignInButton mode="modal">
-                  <button className="px-4 py-2 text-slate-700 hover:text-slate-900 font-medium transition-colors">
-                    Sign In
-                  </button>
-                </SignInButton>
-                <SignUpButton mode="modal">
-                  <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium">
-                    Sign Up
-                  </button>
-                </SignUpButton>
-              </div>
-            )
-          )}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={createDocument}
+              disabled={creating}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors font-medium"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              {creating ? 'Creating...' : 'New Document'}
+            </button>
+            <UserButton
+              afterSignOutUrl="/"
+              appearance={{
+                elements: {
+                  avatarBox: 'w-8 h-8'
+                }
+              }}
+            />
+          </div>
         </div>
       </header>
 
@@ -262,62 +256,25 @@ export default function Home() {
                   Clear search
                 </button>
               </>
-            ) : !isSignedIn ? (
-              <>
-                <svg className="w-20 h-20 mx-auto mb-4 text-slate-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <p className="text-xl font-medium text-slate-600 mb-2">Sign in to access your documents</p>
-                <p className="text-slate-500 mb-6">Create a free account to start writing and collaborating</p>
-                <div className="flex items-center justify-center gap-3">
-                  <SignUpButton mode="modal">
-                    <button className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                      Create Account
-                    </button>
-                  </SignUpButton>
-                  <SignInButton mode="modal">
-                    <button className="px-5 py-2.5 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium">
-                      Sign In
-                    </button>
-                  </SignInButton>
-                </div>
-              </>
             ) : (
               <>
                 <svg className="w-20 h-20 mx-auto mb-4 text-slate-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                {isSignedIn ? (
-                  <>
-                    <p className="text-xl font-medium text-slate-600 mb-2">No documents yet</p>
-                    <p className="text-slate-500 mb-6">Create your first document to get started</p>
-                    <button
-                      onClick={createDocument}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                    >
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                      </svg>
-                      Create Document
-                    </button>
-                    <p className="mt-4 text-xs text-slate-400">
-                      Keyboard shortcut: Press <kbd className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-600">Ctrl + N</kbd> to create a new document
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-xl font-medium text-slate-600 mb-2">Get started with CollabMD</p>
-                    <p className="text-slate-500 mb-6">Sign up to create and collaborate on Markdown documents</p>
-                    <SignUpButton mode="modal">
-                      <button className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                        </svg>
-                        Create Free Account
-                      </button>
-                    </SignUpButton>
-                  </>
-                )}
+                <p className="text-xl font-medium text-slate-600 mb-2">No documents yet</p>
+                <p className="text-slate-500 mb-6">Create your first document to get started</p>
+                <button
+                  onClick={createDocument}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  Create Document
+                </button>
+                <p className="mt-4 text-xs text-slate-400">
+                  Keyboard shortcut: Press <kbd className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-600">Ctrl + N</kbd> to create a new document
+                </p>
               </>
             )}
           </div>
