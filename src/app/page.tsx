@@ -162,6 +162,7 @@ export default function Home() {
             >
               {creating ? '...' : 'New doc'}
             </button>
+            <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-1" />
             <UserButton
               afterSignOutUrl="/"
               appearance={{
