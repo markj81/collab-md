@@ -9,26 +9,52 @@ declare global {
 const DOCS_KEY = 'collab-md:documents';
 const DOC_KEY = (id: string) => `collab-md:doc:${id}`;
 
-// Lazy Redis client initialization
+// Lazy Redis client initialization with better error handling
 let redisClient: Redis | null = null;
 
-function getRedisClient(): Redis {
+function getRedisClient(): Redis | null {
+  // Return null if no KV_URL available
+  if (!process.env.KV_URL) {
+    console.warn('KV_URL not set - Redis will not be available');
+    return null;
+  }
+
   if (redisClient) return redisClient;
 
-  if (process.env.KV_URL) {
-    redisClient = new Redis(process.env.KV_URL);
-  } else {
-    if (!global.redis) {
-      global.redis = new Redis(process.env.LOCAL_KV_URL || 'redis://localhost:6379');
-    }
-    redisClient = global.redis as Redis;
+  try {
+    redisClient = new Redis(process.env.KV_URL, {
+      maxRetriesPerRequest: 1,
+      connectTimeout: 5000,
+      lazyConnect: true,
+    });
+
+    redisClient.on('error', (err) => {
+      console.error('Redis connection error:', err.message);
+    });
+
+    redisClient.on('connect', () => {
+      console.log('Redis connected successfully');
+    });
+  } catch (err) {
+    console.error('Failed to create Redis client:', err);
+    return null;
   }
+
   return redisClient;
 }
 
-function useRedis<T>(fn: (redis: Redis) => Promise<T>): Promise<T> {
+async function withRedis<T>(fn: (redis: Redis) => Promise<T>): Promise<T | null> {
   const redis = getRedisClient();
-  return fn(redis);
+  if (!redis) {
+    console.warn('Redis not available');
+    return null;
+  }
+  try {
+    return await fn(redis);
+  } catch (err) {
+    console.error('Redis operation error:', err);
+    return null;
+  }
 }
 
 interface Document {
@@ -42,23 +68,24 @@ interface Document {
 
 export async function getDocuments(): Promise<Document[]> {
   try {
-    const ids = await useRedis(async (redis) => await redis.smembers(DOCS_KEY));
-    if (ids.length === 0) return [];
+    const ids = await withRedis(async (redis) => await redis.smembers(DOCS_KEY));
+    if (!ids) return [];
 
-    const pipeline = (await useRedis(async (redis) => {
+    const pipeline = await withRedis(async (redis) => {
       const pipe = redis.pipeline();
       ids.forEach((id) => {
         pipe.get(DOC_KEY(id));
       });
       return pipe.exec();
-    })) as Array<[Error | null, string | null]>;
+    });
+    if (!pipeline) return [];
 
     const documents: Document[] = [];
 
     pipeline.forEach(([err, value]) => {
       if (!err && value) {
         try {
-          documents.push(JSON.parse(value));
+          documents.push(JSON.parse(value as string));
         } catch (e) {
           console.error('Error parsing document:', e);
         }
@@ -76,8 +103,9 @@ export async function getDocuments(): Promise<Document[]> {
 
 export async function getDocument(id: string): Promise<Document | null> {
   try {
-    const data = await useRedis(async (redis) => await redis.get(DOC_KEY(id)));
-    return data ? JSON.parse(data) : null;
+    const data = await withRedis(async (redis) => await redis.get(DOC_KEY(id)));
+    if (!data) return null;
+    return JSON.parse(data);
   } catch (error) {
     console.error('Error fetching document:', error);
     return null;
@@ -93,12 +121,17 @@ export async function createDocument(doc: Omit<Document, 'createdAt' | 'updatedA
       updatedAt: now,
     };
 
-    await useRedis(async (redis) => {
+    const result = await withRedis(async (redis) => {
       const pipeline = redis.pipeline();
       pipeline.set(DOC_KEY(doc.id), JSON.stringify(newDoc));
       pipeline.sadd(DOCS_KEY, doc.id);
-      await pipeline.exec();
+      return pipeline.exec();
     });
+
+    if (!result) {
+      console.error('Failed to save document to Redis');
+      return null;
+    }
 
     return newDoc;
   } catch (error) {
@@ -122,7 +155,7 @@ export async function updateDocument(
       updatedAt: now,
     };
 
-    await useRedis(async (redis) => {
+    await withRedis(async (redis) => {
       await redis.set(DOC_KEY(id), JSON.stringify(updated));
     });
 
@@ -135,13 +168,14 @@ export async function updateDocument(
 
 export async function deleteDocument(id: string): Promise<boolean> {
   try {
-    await useRedis(async (redis) => {
+    const result = await withRedis(async (redis) => {
       const pipeline = redis.pipeline();
       pipeline.del(DOC_KEY(id));
       pipeline.srem(DOCS_KEY, id);
-      await pipeline.exec();
+      return pipeline.exec();
     });
-    return true;
+
+    return result !== null;
   } catch (error) {
     console.error('Error deleting document:', error);
     return false;
@@ -150,11 +184,11 @@ export async function deleteDocument(id: string): Promise<boolean> {
 
 export async function getDocumentByShareToken(token: string): Promise<Document | null> {
   try {
-    const ids = await useRedis(async (redis) => await redis.smembers(DOCS_KEY));
-    if (ids.length === 0) return null;
+    const ids = await withRedis(async (redis) => await redis.smembers(DOCS_KEY));
+    if (!ids) return null;
 
     for (const id of ids) {
-      const data = await useRedis(async (redis) => await redis.get(DOC_KEY(id)));
+      const data = await withRedis(async (redis) => await redis.get(DOC_KEY(id)));
       if (data) {
         const doc = JSON.parse(data) as Document;
         if (doc.shareToken === token) {
