@@ -165,7 +165,13 @@ export function LandingPage() {
             <div className="w-4 h-4 bg-slate-900 dark:bg-white rounded-sm" />
             <span className="text-sm text-slate-500">CollabMD</span>
           </div>
-          <p className="text-xs text-slate-400">Made for writers</p>
+          <p className="text-xs text-slate-400">
+            Created by{' '}
+            <a href="https://www.theluckystrike.co.uk" target="_blank" rel="noopener noreferrer" className="hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+              Mark Jenkins
+            </a>{' '}
+            with love and coffee
+          </p>
         </div>
       </footer>
     </div>
