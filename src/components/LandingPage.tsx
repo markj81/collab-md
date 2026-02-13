@@ -4,6 +4,108 @@ import { useState, useEffect, useRef } from 'react';
 import { SignInButton, SignUpButton } from '@clerk/nextjs';
 import { useTheme } from '@/components/ThemeProvider';
 
+// Floating cursor component with smooth random movement
+function FloatingCursor({
+  name,
+  color,
+  bgColor,
+  startX,
+  startY,
+  duration,
+  delay
+}: {
+  name: string;
+  color: string;
+  bgColor: string;
+  startX: number;
+  startY: number;
+  duration: number;
+  delay: number;
+}) {
+  const cursorRef = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState({ x: startX, y: startY });
+
+  useEffect(() => {
+    const cursor = cursorRef.current;
+    if (!cursor) return;
+
+    let currentX = startX;
+    let currentY = startY;
+    let angle = Math.random() * Math.PI * 2;
+    let time = 0;
+
+    const animate = () => {
+      time += 0.02;
+
+      // Randomly change angle slightly for smooth wandering
+      angle += (Math.random() - 0.5) * 0.5;
+
+      // Move in current direction
+      const speed = 0.15 + Math.random() * 0.1;
+      currentX += Math.cos(angle) * speed;
+      currentY += Math.sin(angle) * speed;
+
+      // Bounce off edges (roughly within 5-95% of container)
+      if (currentX < 5 || currentX > 95) {
+        angle = Math.PI - angle;
+        currentX = Math.max(5, Math.min(95, currentX));
+      }
+      if (currentY < 10 || currentY > 90) {
+        angle = -angle;
+        currentY = Math.max(10, Math.min(90, currentY));
+      }
+
+      // Add subtle bobbing motion
+      const bob = Math.sin(time * 2) * 2;
+
+      setPosition({ x: currentX, y: currentY + bob });
+
+      requestAnimationFrame(animate);
+    };
+
+    const animationId = requestAnimationFrame(animate);
+
+    return () => cancelAnimationFrame(animationId);
+  }, [startX, startY]);
+
+  return (
+    <div
+      ref={cursorRef}
+      className="absolute transition-transform will-change-transform"
+      style={{
+        left: `${position.x}%`,
+        top: `${position.y}%`,
+        animationDelay: `${delay}s`
+      }}
+    >
+      {/* Cursor arrow */}
+      <svg
+        width="20"
+        height="24"
+        viewBox="0 0 20 24"
+        fill="none"
+        className="drop-shadow-md"
+        style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.2))' }}
+      >
+        <path
+          d="M2 2L18 14L12 15L9 22L2 2Z"
+          fill={bgColor}
+          stroke="white"
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+        />
+      </svg>
+      {/* Name tag */}
+      <div
+        className="absolute left-5 top-4 px-2 py-0.5 rounded text-xs font-medium text-white whitespace-nowrap shadow-sm"
+        style={{ backgroundColor: bgColor }}
+      >
+        {name}
+      </div>
+    </div>
+  );
+}
+
 export function LandingPage() {
   const { theme, toggleTheme } = useTheme();
 
@@ -102,8 +204,32 @@ export function LandingPage() {
         </div>
 
         {/* Editor Preview */}
-        <div className="max-w-5xl mx-auto px-6 mt-16">
-          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#141414] overflow-hidden shadow-xl shadow-slate-200/20 dark:shadow-black/40">
+        <div className="max-w-5xl mx-auto px-6 mt-16 relative">
+          {/* Floating Cursors */}
+          <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden rounded-xl">
+            {/* Bert - Blue Cursor */}
+            <FloatingCursor
+              name="Bert"
+              color="#3b82f6"
+              bgColor="#3b82f6"
+              startX={15}
+              startY={30}
+              duration={12}
+              delay={0}
+            />
+            {/* Mark - Purple Cursor */}
+            <FloatingCursor
+              name="Mark"
+              color="#a855f7"
+              bgColor="#a855f7"
+              startX={65}
+              startY={45}
+              duration={15}
+              delay={2}
+            />
+          </div>
+
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#141414] overflow-hidden shadow-xl shadow-slate-200/20 dark:shadow-black/40 relative z-0">
             <div className="flex items-center gap-1.5 px-4 py-3 border-b border-slate-200 dark:border-slate-800/50">
               <div className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700" />
               <div className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700" />
