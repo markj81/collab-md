@@ -19,8 +19,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setMounted(true);
     const saved = localStorage.getItem('collabmd-theme') as Theme | null;
-    // Default to light mode, fall back to saved preference
-    const initial = saved || 'light';
+    const initial = (saved as Theme) || 'light';
     setThemeState(initial);
     document.documentElement.classList.toggle('dark', initial === 'dark');
   }, []);
@@ -32,30 +31,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   };
 
   const toggleTheme = () => {
-    setThemeState((prev) => {
-      const newTheme = prev === 'light' ? 'dark' : 'light';
-      localStorage.setItem('collabmd-theme', newTheme);
-      document.documentElement.classList.toggle('dark', newTheme === 'dark');
-      return newTheme;
-    });
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
   };
 
-  // Before mounted, use system preference
-  if (!mounted) {
-    const prefersDark = typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initial = prefersDark ? 'dark' : 'light';
-    if (initial === 'dark') {
-      document.documentElement.classList.add('dark');
-    }
-    return (
-      <ThemeContext.Provider value={{ theme: initial, toggleTheme, setTheme }}>
-        {children}
-      </ThemeContext.Provider>
-    );
-  }
-
+  // Use suppressHydrationWarning to prevent mismatch warnings during initial render
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }} suppressHydrationWarning>
       {children}
     </ThemeContext.Provider>
   );

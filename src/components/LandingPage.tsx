@@ -8,7 +8,7 @@ export function LandingPage() {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#101112] text-slate-900 dark:text-white overflow-hidden">
+    <div className="min-h-screen bg-white dark:bg-[#101112] text-slate-900 dark:text-white overflow-hidden" suppressHydrationWarning>
       {/* Animated Halftone Gradient - Subtle */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden opacity-25 dark:opacity-10 mix-blend-screen">
         <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice">
