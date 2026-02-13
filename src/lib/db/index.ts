@@ -13,16 +13,18 @@ const DOC_KEY = (id: string) => `collab-md:doc:${id}`;
 let redisClient: Redis | null = null;
 
 function getRedisClient(): Redis | null {
-  // Return null if no KV_URL available
-  if (!process.env.KV_URL) {
-    console.warn('KV_URL not set - Redis will not be available');
+  // Check both KV_URL (legacy) and REDIS_URL (new) environment variables
+  const redisUrl = process.env.KV_URL || process.env.REDIS_URL;
+
+  if (!redisUrl) {
+    console.warn('KV_URL/REDIS_URL not set - Redis will not be available');
     return null;
   }
 
   if (redisClient) return redisClient;
 
   try {
-    redisClient = new Redis(process.env.KV_URL, {
+    redisClient = new Redis(redisUrl, {
       maxRetriesPerRequest: 1,
       connectTimeout: 5000,
       lazyConnect: true,
