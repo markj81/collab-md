@@ -19,7 +19,8 @@
     "/editor/[id]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/editor/[id]/page.js"
+      "static/chunks/app/editor/[id]/page.js",
+      "static/css/app/editor/[id]/page.css"
     ],
     "/api/documents/[id]/route": [
       "static/chunks/webpack.js",

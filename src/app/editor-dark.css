@@ -1,0 +1,86 @@
+/* Dark mode styles for CodeMirror editor */
+.cm-editor.dark-mode {
+  background-color: #111;
+}
+
+.cm-editor.dark-mode .cm-content {
+  color: #e2e8f0;
+}
+
+.cm-editor.dark-mode .cm-line {
+  color: #e2e8f0;
+}
+
+.cm-editor.dark-mode .cm-gutters {
+  background-color: #111;
+  color: #64748b;
+  border-right: 1px solid #334155;
+}
+
+.cm-editor.dark-mode .cm-activeLineGutter {
+  color: #f59e0b;
+}
+
+.cm-editor.dark-mode .cm-activeLine {
+  background-color: #1a1a1a;
+}
+
+.cm-editor.dark-mode .cm-selectionBackground,
+.cm-editor.dark-mode .cm-content ::selection {
+  background-color: #f59e0b33;
+}
+
+.cm-editor.dark-mode.cm-focused {
+  outline: none;
+}
+
+/* Markdown syntax colors in dark mode */
+.cm-editor.dark-mode .cm-heading {
+  color: #f59e0b !important;
+  font-weight: 600;
+}
+
+.cm-editor.dark-mode .cm-strong {
+  color: #fbbf24 !important;
+  font-weight: 600;
+}
+
+.cm-editor.dark-mode .cm-em {
+  color: #fbbf24 !important;
+  font-style: italic;
+}
+
+.cm-editor.dark-mode .cm-link {
+  color: #60a5fa !important;
+  text-decoration: underline;
+}
+
+.cm-editor.dark-mode .cm-url {
+  color: #60a5fa !important;
+}
+
+.cm-editor.dark-mode .cm-code {
+  color: #a5f3fc !important;
+  background-color: #1e293b !important;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.cm-editor.dark-mode .cm-quote {
+  color: #94a3b8 !important;
+  font-style: italic;
+}
+
+/* Editor container dark mode */
+.editor-container.dark-mode {
+  background-color: #111;
+}
+
+.editor-container.dark-mode .toolbar {
+  background-color: #111;
+  border-color: #333;
+}
+
+.editor-container.dark-mode .cm-editor {
+  background-color: #111;
+}

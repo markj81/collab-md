@@ -7,6 +7,7 @@ import { markdown } from '@codemirror/lang-markdown';
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
 import { yCollab } from 'y-codemirror.next';
 import * as Y from 'yjs';
+import { useTheme } from '@/components/ThemeProvider';
 
 interface MarkdownEditorProps {
   documentId: string;
@@ -23,6 +24,7 @@ export function MarkdownEditor({
   onChange,
   onWordCountChange,
 }: MarkdownEditorProps) {
+  const { theme } = useTheme();
   const editorRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
   const docIdRef = useRef<string | null>(null);
@@ -84,9 +86,9 @@ export function MarkdownEditor({
     const container = editorRef.current?.closest('.editor-container');
     if (!container) return;
     if (!isFullscreen) {
-      container.classList.add('fixed', 'inset-0', 'z-50', 'bg-white', 'p-4');
+      container.classList.add('fixed', 'inset-0', 'z-50', 'bg-white', 'dark:bg-[#0a0a0a]', 'p-4');
     } else {
-      container.classList.remove('fixed', 'inset-0', 'z-50', 'bg-white', 'p-4');
+      container.classList.remove('fixed', 'inset-0', 'z-50', 'bg-white', 'dark:bg-[#0a0a0a]', 'p-4');
     }
     setIsFullscreen(!isFullscreen);
   }, [isFullscreen]);
@@ -104,6 +106,9 @@ export function MarkdownEditor({
     if (yText === undefined && ytext.toString() === '' && initialContent) {
       ytext.insert(0, initialContent);
     }
+
+    const isDark = theme === 'dark';
+
     const extensions: Extension[] = [
       lineNumbers(),
       highlightActiveLine(),
@@ -123,31 +128,50 @@ export function MarkdownEditor({
         }
       }),
       EditorView.theme({
-        '&': { height: '100%', backgroundColor: 'transparent' },
+        '&': {
+          height: '100%',
+          backgroundColor: 'transparent',
+          color: isDark ? '#e2e8f0' : '#0f172a',
+        },
         '.cm-scroller': { overflow: 'auto' },
-        '.cm-content': { fontFamily: 'var(--font-mono)', fontSize: '14px', backgroundColor: 'transparent' },
-        '.cm-line': { padding: '0 16px' },
+        '.cm-content': {
+          fontFamily: 'var(--font-mono)',
+          fontSize: '14px',
+          backgroundColor: 'transparent',
+          color: isDark ? '#e2e8f0' : '#0f172a',
+        },
+        '.cm-line': { padding: '0 16px', color: isDark ? '#e2e8f0' : '#0f172a' },
         '&.cm-focused': { outline: 'none' },
         '.cm-gutters': {
           backgroundColor: 'transparent',
-          color: '#94a3b8',
+          color: isDark ? '#64748b' : '#94a3b8',
           borderRight: '1px solid #334155',
         },
         '.cm-activeLineGutter': {
           backgroundColor: 'transparent',
-          color: '#f8fafc',
+          color: isDark ? '#f59e0b' : '#0f172a',
+        },
+        '.cm-activeLine': {
+          backgroundColor: isDark ? '#1a1a1a' : '#f8fafc',
+        },
+        '.cm-selectionBackground, .cm-content ::selection': {
+          backgroundColor: isDark ? '#f59e0b33' : '#e2e8f0',
         },
       }),
     ];
+
     if (yText !== undefined) {
       extensions.push(yCollab(yText, null) as Extension);
     }
+
     const state = EditorState.create({
       doc: ytext.toString() || initialContent,
       extensions,
     });
+
     const view = new EditorView({ state, parent: editorRef.current });
     viewRef.current = view;
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isFullscreen) toggleFullscreen();
       if (e.ctrlKey || e.metaKey) {
@@ -163,7 +187,9 @@ export function MarkdownEditor({
         }
       }
     };
+
     document.addEventListener('keydown', handleKeyDown);
+
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
       if (viewRef.current) {
@@ -172,10 +198,10 @@ export function MarkdownEditor({
       }
       docIdRef.current = null;
     };
-  }, [documentId, yText, onChange, onWordCountChange]);
+  }, [documentId, yText, theme, onChange, onWordCountChange]);
 
   return (
-    <div className="editor-container flex flex-col h-full">
+    <div className={`editor-container flex flex-col h-full ${theme === 'dark' ? 'dark-mode' : ''}`}>
       <div className="toolbar flex items-center gap-1 p-2 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#1a1a1a] flex-wrap">
         <div className="flex items-center gap-0.5 pr-2 border-r border-slate-300 dark:border-slate-600">
           <button onClick={toggleBold} className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded font-bold text-sm text-slate-700 dark:text-slate-300">B</button>

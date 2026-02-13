@@ -7,6 +7,7 @@ import { MarkdownPreview } from '@/components/editor/MarkdownPreview';
 import { ShareButton } from '@/components/ShareButton';
 import { useCollaboration } from '@/hooks/use-collaboration';
 import { useTheme } from '@/components/ThemeProvider';
+import '@/app/editor-dark.css';
 import * as Y from 'yjs';
 
 interface DocumentData {
