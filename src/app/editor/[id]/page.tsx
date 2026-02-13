@@ -144,15 +144,15 @@ export default function EditorPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-[#0a0a0a]">
-      <header className="bg-white dark:bg-[#111] border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
-        <div className="px-4 py-3 flex items-center justify-between gap-4">
+    <div className="min-h-screen flex flex-col bg-white dark:bg-[#0a0a0a]">
+      <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800 flex-shrink-0">
+        <div className="max-w-5xl mx-auto px-4 h-12 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
             <button
               onClick={handleBack}
-              className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors flex-shrink-0"
+              className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors flex-shrink-0"
             >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
             </button>
@@ -160,88 +160,60 @@ export default function EditorPage() {
               type="text"
               value={title}
               onChange={handleTitleChange}
-              className="text-lg font-semibold text-slate-900 dark:text-white bg-transparent border-none outline-none focus:ring-0 min-w-0 truncate"
+              className="text-sm font-medium text-slate-900 dark:text-white bg-transparent border-none outline-none focus:ring-0 min-w-0 truncate placeholder-slate-400"
               placeholder="Untitled.md"
             />
-            <div className="flex items-center gap-2 text-xs text-slate-400 flex-shrink-0">
+            <div className="flex items-center gap-1.5 text-xs text-slate-400 flex-shrink-0">
               {saving ? (
                 <span className="flex items-center gap-1">
                   <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
-                  Saving...
+                  Saving
                 </span>
               ) : (
                 <span className="flex items-center gap-1">
-                  <svg className="w-3 h-3 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  {formatLastSaved()}
+                  <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-green-500' : 'bg-slate-300'}`} />
+                  {isConnected ? 'Saved' : 'Offline'}
                 </span>
               )}
             </div>
           </div>
 
-          <div className="flex items-center gap-3 flex-shrink-0">
-            {/* Theme toggle */}
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-              aria-label="Toggle dark mode"
-            >
-              {theme === 'light' ? (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                </svg>
-              ) : (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-              )}
-            </button>
-
+          <div className="flex items-center gap-1 flex-shrink-0">
             {/* Word count */}
             <div className="text-xs text-slate-400 px-2">
-              {wordCount.words} words · {wordCount.chars} chars
+              {wordCount.words}
             </div>
+
+            <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-1" />
 
             {/* Connected users */}
             {isConnected && users.length > 0 && (
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-0.5 mr-1">
                 {users.slice(0, 3).map((user) => (
                   <div
                     key={user.clientId}
-                    className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-medium"
+                    className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] font-medium -ml-1 first:ml-0 ring-2 ring-white dark:ring-[#0a0a0a]"
                     style={{ backgroundColor: user.user.color }}
                     title={user.user.name}
                   >
                     {user.user.name.charAt(0).toUpperCase()}
                   </div>
                 ))}
-                {users.length > 3 && (
-                  <span className="text-xs text-slate-500 ml-1">+{users.length - 3}</span>
-                )}
               </div>
             )}
 
-            {/* Connection status */}
-            <div className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded-full ${
-              isConnected ? 'bg-green-500/10 text-green-500' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
-            }`}>
-              <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-slate-400'}`} />
-              {isConnected ? 'Connected' : 'Offline'}
-            </div>
-
             <button
               onClick={() => setShowPreview(!showPreview)}
-              className={`p-2 rounded-md text-sm font-medium transition-colors ${
+              className={`px-2 py-1 text-xs rounded transition-colors ${
                 showPreview
-                  ? 'bg-amber-500/10 text-amber-500'
-                  : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  ? 'text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800'
+                  : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
               }`}
             >
-              {showPreview ? 'Hide Preview' : 'Show Preview'}
+              {showPreview ? 'Preview' : 'Edit'}
             </button>
 
             {document?.shareToken && (
@@ -250,6 +222,22 @@ export default function EditorPage() {
                 documentTitle={title}
               />
             )}
+
+            <button
+              onClick={toggleTheme}
+              className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors"
+              aria-label="Toggle theme"
+            >
+              {theme === 'light' ? (
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+              ) : (
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              )}
+            </button>
           </div>
         </div>
       </header>
