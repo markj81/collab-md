@@ -158,7 +158,7 @@ export default function Home() {
             <button
               onClick={createDocument}
               disabled={creating}
-              className="px-3 py-1.5 text-sm bg-slate-900 dark:bg-white text-white dark:text-black rounded-md hover:opacity-90 transition-opacity"
+              className="px-2 py-1 text-xs font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors"
             >
               {creating ? '...' : 'New doc'}
             </button>
