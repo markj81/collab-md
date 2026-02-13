@@ -6,6 +6,7 @@ import { MarkdownEditor } from '@/components/editor/MarkdownEditor';
 import { MarkdownPreview } from '@/components/editor/MarkdownPreview';
 import { ShareButton } from '@/components/ShareButton';
 import { useCollaboration } from '@/hooks/use-collaboration';
+import { useTheme } from '@/components/ThemeProvider';
 import * as Y from 'yjs';
 
 interface DocumentData {
@@ -18,6 +19,7 @@ interface DocumentData {
 export default function EditorPage() {
   const params = useParams();
   const router = useRouter();
+  const { theme, toggleTheme } = useTheme();
   const documentId = params.id as string;
 
   const [document, setDocument] = useState<DocumentData | null>(null);
@@ -29,7 +31,6 @@ export default function EditorPage() {
   const [content, setContent] = useState('');
   const [wordCount, setWordCount] = useState({ words: 0, chars: 0 });
 
-  // Stable setContent for editor
   const handleContentChange = useCallback((newContent: string) => {
     setContent(newContent);
   }, []);
@@ -38,7 +39,6 @@ export default function EditorPage() {
     setWordCount({ words, chars });
   }, []);
 
-  // Collaboration
   const { ydoc, yText, isConnected, users } = useCollaboration({
     documentId,
   });
@@ -61,15 +61,12 @@ export default function EditorPage() {
     }
   }, [documentId, router]);
 
-  // Set random user info once
   useEffect(() => {
     fetchDocument();
   }, [fetchDocument]);
 
-  // Debounced save ref
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Save document
   const saveDocument = useCallback(
     async (newContent?: string) => {
       if (!documentId) return;
@@ -93,7 +90,6 @@ export default function EditorPage() {
     [documentId, title, content]
   );
 
-  // Auto-save on content change (saves 1 second after typing stops)
   useEffect(() => {
     if (loading || !content) return;
 
@@ -127,7 +123,6 @@ export default function EditorPage() {
     router.push('/');
   };
 
-  // Format time since last save
   const formatLastSaved = () => {
     if (!lastSaved) return 'Not saved yet';
     const seconds = Math.floor((Date.now() - lastSaved.getTime()) / 1000);
@@ -138,23 +133,23 @@ export default function EditorPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-[#0a0a0a]">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
-          <p className="text-slate-500">Loading document...</p>
+          <div className="w-10 h-10 border-4 border-amber-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-slate-500 dark:text-slate-400">Loading document...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="bg-white border-b border-slate-200 flex-shrink-0">
+    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-[#0a0a0a]">
+      <header className="bg-white dark:bg-[#111] border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
         <div className="px-4 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
             <button
               onClick={handleBack}
-              className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md transition-colors flex-shrink-0"
+              className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors flex-shrink-0"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -164,7 +159,7 @@ export default function EditorPage() {
               type="text"
               value={title}
               onChange={handleTitleChange}
-              className="text-lg font-semibold text-slate-900 bg-transparent border-none outline-none focus:ring-0 min-w-0 truncate"
+              className="text-lg font-semibold text-slate-900 dark:text-white bg-transparent border-none outline-none focus:ring-0 min-w-0 truncate"
               placeholder="Untitled.md"
             />
             <div className="flex items-center gap-2 text-xs text-slate-400 flex-shrink-0">
@@ -188,6 +183,23 @@ export default function EditorPage() {
           </div>
 
           <div className="flex items-center gap-3 flex-shrink-0">
+            {/* Theme toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              aria-label="Toggle dark mode"
+            >
+              {theme === 'light' ? (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              )}
+            </button>
+
             {/* Word count */}
             <div className="text-xs text-slate-400 px-2">
               {wordCount.words} words · {wordCount.chars} chars
@@ -214,7 +226,7 @@ export default function EditorPage() {
 
             {/* Connection status */}
             <div className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded-full ${
-              isConnected ? 'bg-green-50 text-green-700' : 'bg-slate-100 text-slate-500'
+              isConnected ? 'bg-green-500/10 text-green-500' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'
             }`}>
               <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-slate-400'}`} />
               {isConnected ? 'Connected' : 'Offline'}
@@ -224,8 +236,8 @@ export default function EditorPage() {
               onClick={() => setShowPreview(!showPreview)}
               className={`p-2 rounded-md text-sm font-medium transition-colors ${
                 showPreview
-                  ? 'bg-slate-100 text-slate-700'
-                  : 'text-slate-500 hover:bg-slate-100'
+                  ? 'bg-amber-500/10 text-amber-500'
+                  : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
               }`}
             >
               {showPreview ? 'Hide Preview' : 'Show Preview'}
@@ -253,7 +265,7 @@ export default function EditorPage() {
           />
         </div>
         {showPreview && (
-          <div className="w-1/2 border-l border-slate-200 bg-white overflow-auto">
+          <div className="w-1/2 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111] overflow-auto">
             <MarkdownPreview content={content} />
           </div>
         )}

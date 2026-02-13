@@ -123,11 +123,20 @@ export function MarkdownEditor({
         }
       }),
       EditorView.theme({
-        '&': { height: '100%' },
+        '&': { height: '100%', backgroundColor: 'transparent' },
         '.cm-scroller': { overflow: 'auto' },
-        '.cm-content': { fontFamily: 'var(--font-mono)', fontSize: '14px' },
+        '.cm-content': { fontFamily: 'var(--font-mono)', fontSize: '14px', backgroundColor: 'transparent' },
         '.cm-line': { padding: '0 16px' },
         '&.cm-focused': { outline: 'none' },
+        '.cm-gutters': {
+          backgroundColor: 'transparent',
+          color: '#94a3b8',
+          borderRight: '1px solid #334155',
+        },
+        '.cm-activeLineGutter': {
+          backgroundColor: 'transparent',
+          color: '#f8fafc',
+        },
       }),
     ];
     if (yText !== undefined) {
@@ -167,26 +176,26 @@ export function MarkdownEditor({
 
   return (
     <div className="editor-container flex flex-col h-full">
-      <div className="toolbar flex items-center gap-1 p-2 border-b border-slate-200 bg-slate-50 flex-wrap">
-        <div className="flex items-center gap-0.5 pr-2 border-r border-slate-300">
-          <button onClick={toggleBold} className="p-1.5 hover:bg-slate-200 rounded font-bold text-sm">B</button>
-          <button onClick={toggleItalic} className="p-1.5 hover:bg-slate-200 rounded italic text-sm">I</button>
+      <div className="toolbar flex items-center gap-1 p-2 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-[#1a1a1a] flex-wrap">
+        <div className="flex items-center gap-0.5 pr-2 border-r border-slate-300 dark:border-slate-600">
+          <button onClick={toggleBold} className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded font-bold text-sm text-slate-700 dark:text-slate-300">B</button>
+          <button onClick={toggleItalic} className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded italic text-sm text-slate-700 dark:text-slate-300">I</button>
         </div>
-        <div className="flex items-center gap-0.5 px-2 border-r border-slate-300">
-          <button onClick={() => insertHeading(1)} className="px-2 py-1 text-sm hover:bg-slate-200 rounded">H1</button>
-          <button onClick={() => insertHeading(2)} className="px-2 py-1 text-sm hover:bg-slate-200 rounded">H2</button>
-          <button onClick={() => insertHeading(3)} className="px-2 py-1 text-sm hover:bg-slate-200 rounded">H3</button>
+        <div className="flex items-center gap-0.5 px-2 border-r border-slate-300 dark:border-slate-600">
+          <button onClick={() => insertHeading(1)} className="px-2 py-1 text-sm hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-700 dark:text-slate-300">H1</button>
+          <button onClick={() => insertHeading(2)} className="px-2 py-1 text-sm hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-700 dark:text-slate-300">H2</button>
+          <button onClick={() => insertHeading(3)} className="px-2 py-1 text-sm hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-slate-700 dark:text-slate-300">H3</button>
         </div>
-        <div className="flex items-center gap-0.5 px-2 border-r border-slate-300">
-          <button onClick={() => insertList(false)} className="p-1.5 hover:bg-slate-200 rounded text-sm">- List</button>
-          <button onClick={() => insertList(true)} className="p-1.5 hover:bg-slate-200 rounded text-sm">1. List</button>
+        <div className="flex items-center gap-0.5 px-2 border-r border-slate-300 dark:border-slate-600">
+          <button onClick={() => insertList(false)} className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-sm text-slate-700 dark:text-slate-300">- List</button>
+          <button onClick={() => insertList(true)} className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-sm text-slate-700 dark:text-slate-300">1. List</button>
         </div>
-        <div className="flex items-center gap-0.5 px-2 border-r border-slate-300">
-          <button onClick={insertCodeBlock} className="p-1.5 hover:bg-slate-200 rounded"><code className="text-xs">&lt;/&gt;</code></button>
-          <button onClick={insertLink} className="p-1.5 hover:bg-slate-200 rounded text-sm">Link</button>
+        <div className="flex items-center gap-0.5 px-2 border-r border-slate-300 dark:border-slate-600">
+          <button onClick={insertCodeBlock} className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded"><code className="text-xs text-slate-700 dark:text-slate-300">&lt;/&gt;</code></button>
+          <button onClick={insertLink} className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-sm text-slate-700 dark:text-slate-300">Link</button>
         </div>
         <div className="flex items-center gap-0.5 px-2">
-          <button onClick={toggleFullscreen} className="p-1.5 hover:bg-slate-200 rounded text-sm">{isFullscreen ? 'Exit Full' : 'Full'}</button>
+          <button onClick={toggleFullscreen} className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-sm text-slate-700 dark:text-slate-300">{isFullscreen ? 'Exit Full' : 'Full'}</button>
         </div>
       </div>
       <div ref={editorRef} className="flex-1 overflow-auto" />
