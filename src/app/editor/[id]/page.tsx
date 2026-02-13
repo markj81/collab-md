@@ -28,7 +28,7 @@ export default function EditorPage() {
   const [saving, setSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [title, setTitle] = useState('');
-  const [showPreview, setShowPreview] = useState(true);
+  const [activeTab, setActiveTab] = useState<'write' | 'preview'>('write');
   const [content, setContent] = useState('');
   const [wordCount, setWordCount] = useState({ words: 0, chars: 0 });
 
@@ -205,16 +205,28 @@ export default function EditorPage() {
               </div>
             )}
 
-            <button
-              onClick={() => setShowPreview(!showPreview)}
-              className={`px-2 py-1 text-xs rounded transition-colors ${
-                showPreview
-                  ? 'text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800'
-                  : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
-              }`}
-            >
-              {showPreview ? 'Preview' : 'Edit'}
-            </button>
+            <div className="flex items-center gap-0.5 p-0.5 bg-slate-100 dark:bg-slate-800 rounded-lg">
+              <button
+                onClick={() => setActiveTab('write')}
+                className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                  activeTab === 'write'
+                    ? 'text-slate-900 dark:text-white bg-white dark:bg-slate-700 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                }`}
+              >
+                Write
+              </button>
+              <button
+                onClick={() => setActiveTab('preview')}
+                className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                  activeTab === 'preview'
+                    ? 'text-slate-900 dark:text-white bg-white dark:bg-slate-700 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                }`}
+              >
+                Preview
+              </button>
+            </div>
 
             {document?.shareToken && (
               <ShareButton
@@ -243,7 +255,8 @@ export default function EditorPage() {
       </header>
 
       <div className="flex-1 flex overflow-y-auto">
-        <div className={`flex-1 flex flex-col min-w-0 ${showPreview ? 'w-1/2' : 'w-full'}`}>
+        {/* Editor - hidden on mobile when preview tab is active */}
+        <div className={`flex-1 flex flex-col min-w-0 ${activeTab === 'preview' ? 'hidden md:flex' : 'flex'}`}>
           <MarkdownEditor
             key={documentId}
             documentId={documentId}
@@ -253,11 +266,10 @@ export default function EditorPage() {
             onWordCountChange={handleWordCountChange}
           />
         </div>
-        {showPreview && (
-          <div className="w-1/2 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111] overflow-auto flex-shrink-0">
-            <MarkdownPreview content={content} />
-          </div>
-        )}
+        {/* Preview - hidden on mobile when write tab is active */}
+        <div className={`${activeTab === 'write' ? 'hidden md:block' : 'block'} w-full md:w-1/2 border-l border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111] overflow-auto flex-shrink-0`}>
+          <MarkdownPreview content={content} />
+        </div>
       </div>
     </div>
   );
