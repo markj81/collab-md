@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
 
 type Theme = 'light' | 'dark';
 
@@ -16,34 +16,37 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>('light');
   const [mounted, setMounted] = useState(false);
 
+  // Load saved theme on mount
   useEffect(() => {
     setMounted(true);
     const saved = localStorage.getItem('collabmd-theme') as Theme | null;
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initial = saved || (prefersDark ? 'dark' : 'light');
-    setThemeState(initial);
-    document.documentElement.classList.toggle('dark', initial === 'dark');
+    if (saved) {
+      setThemeState(saved);
+      document.documentElement.classList.toggle('dark', saved === 'dark');
+    } else {
+      // Check system preference
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const initial = prefersDark ? 'dark' : 'light';
+      setThemeState(initial);
+      document.documentElement.classList.toggle('dark', initial === 'dark');
+    }
   }, []);
 
-  const setTheme = (newTheme: Theme) => {
+  const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme);
     localStorage.setItem('collabmd-theme', newTheme);
     document.documentElement.classList.toggle('dark', newTheme === 'dark');
-  };
+  }, []);
 
-  const toggleTheme = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
-  };
+  const toggleTheme = useCallback(() => {
+    setThemeState((prevTheme) => {
+      const newTheme = prevTheme === 'light' ? 'dark' : 'light';
+      setTheme(newTheme);
+      return newTheme;
+    });
+  }, [setTheme]);
 
-  // Prevent flash of wrong theme
-  if (!mounted) {
-    return (
-      <ThemeContext.Provider value={{ theme: 'light', toggleTheme: () => {}, setTheme: () => {} }}>
-        {children}
-      </ThemeContext.Provider>
-    );
-  }
-
+  // Return light theme initially to prevent flash, but apply real theme after mount
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
       {children}
