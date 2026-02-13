@@ -59,9 +59,32 @@ export function MarkdownEditor({
   const insertList = useCallback((ordered: boolean) => {
     const view = viewRef.current;
     if (!view) return;
-    const line = view.state.doc.lineAt(view.state.selection.main.head);
+    const { from, to } = view.state.selection.main;
+    const doc = view.state.doc;
     const prefix = ordered ? '1. ' : '- ';
-    view.dispatch({ changes: { from: line.from, insert: prefix } });
+
+    const startLine = doc.lineAt(from);
+    const endLine = doc.lineAt(to);
+
+    // Build changes array, apply from bottom to top to avoid position shifts
+    const changes: { from: number; insert: string }[] = [];
+
+    // Handle the special case where selection ends at the start of a line
+    // In that case, include that line in the list
+    let actualEndLine = endLine;
+    if (to === endLine.from && endLine.number > startLine.number) {
+      actualEndLine = doc.line(endLine.number - 1);
+    }
+
+    for (let i = actualEndLine.number; i >= startLine.number; i--) {
+      const line = doc.line(i);
+      // Only add prefix to non-empty lines
+      if (line.length > 0) {
+        changes.push({ from: line.from, insert: prefix });
+      }
+    }
+
+    view.dispatch({ changes });
   }, []);
 
   const insertCodeBlock = useCallback(() => {

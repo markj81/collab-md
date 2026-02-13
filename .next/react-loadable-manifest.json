@@ -1,20 +1,14 @@
 {
   "../node_modules/@clerk/nextjs/dist/esm/app-router/client/ClerkProvider.js -> ./keyless-creator-reader.js": {
-    "id": 5811,
+    "id": "../node_modules/@clerk/nextjs/dist/esm/app-router/client/ClerkProvider.js -> ./keyless-creator-reader.js",
     "files": [
-      "static/chunks/811.902acb1ae44a39bc.js"
-    ]
-  },
-  "../node_modules/@clerk/nextjs/dist/esm/app-router/client/keyless-cookie-sync.js -> ../keyless-actions.js": {
-    "id": 8121,
-    "files": [
-      "static/chunks/121.6e19e2aeff1e56ff.js"
+      "static/chunks/_app-pages-browser_node_modules_clerk_nextjs_dist_esm_app-router_client_keyless-creator-reader_js.js"
     ]
   },
   "hooks/use-collaboration.ts -> y-partykit/provider": {
-    "id": 6677,
+    "id": "hooks/use-collaboration.ts -> y-partykit/provider",
     "files": [
-      "static/chunks/677.e04400abd10a27fb.js"
+      "static/chunks/_app-pages-browser_node_modules_y-partykit_dist_provider_mjs.js"
     ]
   }
 }
