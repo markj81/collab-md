@@ -1,10 +1,4 @@
 {
-  "/api/share/[token]/route": "app/api/share/[token]/route.js",
-  "/_not-found/page": "app/_not-found/page.js",
-  "/api/documents/route": "app/api/documents/route.js",
-  "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/api/documents/[id]/route": "app/api/documents/[id]/route.js",
-  "/share/[token]/page": "app/share/[token]/page.js",
   "/editor/[id]/page": "app/editor/[id]/page.js",
-  "/page": "app/page.js"
+  "/share/[token]/page": "app/share/[token]/page.js"
 }
