@@ -9,8 +9,8 @@ import { DocumentListItem } from '@/types';
 
 type SortOption = 'updated' | 'created' | 'title';
 
-function formatDate(dateString: string): string {
-  const date = new Date(dateString);
+function formatDate(dateInput: Date | string): string {
+  const date = new Date(dateInput);
   const month = date.toLocaleDateString('en-US', { month: 'short' });
   const day = date.getDate();
   return `${month} ${day}`;

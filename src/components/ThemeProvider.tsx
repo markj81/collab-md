@@ -35,9 +35,19 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setTheme(newTheme);
   };
 
-  // Use suppressHydrationWarning to prevent mismatch warnings during initial render
+  const value = { theme, toggleTheme, setTheme };
+
+  // Avoid hydration mismatch by only rendering provider after mount
+  if (!mounted) {
+    return (
+      <ThemeContext.Provider value={value}>
+        {children}
+      </ThemeContext.Provider>
+    );
+  }
+
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }} suppressHydrationWarning>
+    <ThemeContext.Provider value={value}>
       {children}
     </ThemeContext.Provider>
   );
