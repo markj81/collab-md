@@ -227,25 +227,36 @@ export function MarkdownEditor({
     <div className={`editor-container flex flex-col h-full ${theme === 'dark' ? 'dark-mode' : ''}`}>
       <div className="toolbar sticky top-0 z-10 flex items-center gap-1 px-2 py-1.5 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-[#0a0a0a] flex-wrap">
         <div className="flex items-center gap-0.5 pr-2 border-r border-slate-200 dark:border-slate-700">
-          <button onClick={toggleBold} className="px-2 py-1 text-xs font-medium hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-600 dark:text-slate-400 transition-colors">Bold</button>
-          <button onClick={toggleItalic} className="px-2 py-1 text-xs font-medium hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-600 dark:text-slate-400 transition-colors italic">Italic</button>
+          <button onClick={toggleBold} className="px-2 py-1 text-xs font-medium hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-600 dark:text-slate-400 transition-colors" aria-label="Bold (Ctrl+B)">Bold</button>
+          <button onClick={toggleItalic} className="px-2 py-1 text-xs font-medium hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-600 dark:text-slate-400 transition-colors italic" aria-label="Italic (Ctrl+I)">Italic</button>
         </div>
         <div className="flex items-center gap-0.5 px-2 border-r border-slate-200 dark:border-slate-700">
-          <button onClick={() => insertHeading(1)} className="px-2 py-1 text-xs hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-600 dark:text-slate-400 transition-colors">H1</button>
-          <button onClick={() => insertHeading(2)} className="px-2 py-1 text-xs hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-600 dark:text-slate-400 transition-colors">H2</button>
-          <button onClick={() => insertHeading(3)} className="px-2 py-1 text-xs hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-600 dark:text-slate-400 transition-colors">H3</button>
+          <button onClick={() => insertHeading(1)} className="px-2 py-1 text-xs hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-600 dark:text-slate-400 transition-colors" aria-label="Heading 1">H1</button>
+          <button onClick={() => insertHeading(2)} className="px-2 py-1 text-xs hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-600 dark:text-slate-400 transition-colors" aria-label="Heading 2">H2</button>
+          <button onClick={() => insertHeading(3)} className="px-2 py-1 text-xs hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-600 dark:text-slate-400 transition-colors" aria-label="Heading 3">H3</button>
         </div>
         <div className="flex items-center gap-0.5 px-2 border-r border-slate-200 dark:border-slate-700">
-          <button onClick={() => insertList(false)} className="px-2 py-1 text-xs hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-600 dark:text-slate-400 transition-colors">List</button>
-          <button onClick={() => insertList(true)} className="px-2 py-1 text-xs hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-600 dark:text-slate-400 transition-colors">Ordered</button>
+          <button onClick={() => insertList(false)} className="px-2 py-1 text-xs hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-600 dark:text-slate-400 transition-colors" aria-label="Bullet list">List</button>
+          <button onClick={() => insertList(true)} className="px-2 py-1 text-xs hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-600 dark:text-slate-400 transition-colors" aria-label="Numbered list">Ordered</button>
         </div>
         <div className="flex items-center gap-0.5 px-2 border-r border-slate-200 dark:border-slate-700">
-          <button onClick={insertCodeBlock} className="px-2 py-1 text-xs hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-600 dark:text-slate-400 transition-colors">&lt;/&gt;</button>
-          <button onClick={insertLink} className="px-2 py-1 text-xs hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-600 dark:text-slate-400 transition-colors">Link</button>
+          <button onClick={insertCodeBlock} className="px-2 py-1 text-xs hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-600 dark:text-slate-400 transition-colors" aria-label="Code block">&lt;/&gt;</button>
+          <button onClick={insertLink} className="px-2 py-1 text-xs hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-600 dark:text-slate-400 transition-colors" aria-label="Insert link">Link</button>
         </div>
         <div className="flex items-center gap-0.5 px-2">
-          <button onClick={toggleFullscreen} className="px-2 py-1 text-xs hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-600 dark:text-slate-400 transition-colors">
+          <button onClick={toggleFullscreen} className="px-2 py-1 text-xs hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-600 dark:text-slate-400 transition-colors" aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}>
             {isFullscreen ? 'Exit' : 'Fullscreen'}
+          </button>
+        </div>
+        <div className="flex items-center gap-0.5 px-2 ml-auto">
+          <button
+            onClick={() => {
+              alert('Keyboard shortcuts:\n\nCtrl+B: Bold\nCtrl+I: Italic\nCtrl+N: New document\nCtrl+/: Focus search');
+            }}
+            className="px-2 py-1 text-xs hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-400 dark:text-slate-500 transition-colors"
+            aria-label="Keyboard shortcuts help"
+          >
+            ?
           </button>
         </div>
       </div>

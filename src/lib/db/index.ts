@@ -64,6 +64,8 @@ interface Document {
   title: string;
   content: string | null;
   shareToken: string | null;
+  isPublic: boolean; // false = private (requires login), true = public (anyone can view)
+  sharePermission: 'read-only' | 'editable'; // permission level for share link
   userId: string | null; // Clerk user ID for private documents
   createdAt: string;
   updatedAt: string;

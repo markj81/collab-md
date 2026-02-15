@@ -5,6 +5,7 @@ import { useUser, UserButton } from '@clerk/nextjs';
 import { DocumentList } from '@/components/DocumentList';
 import { LandingPage } from '@/components/LandingPage';
 import { useTheme } from '@/components/ThemeProvider';
+import { useToast } from '@/components/Toast';
 import { DocumentListItem } from '@/types';
 
 type SortOption = 'updated' | 'created' | 'title';
@@ -19,6 +20,7 @@ function formatDate(dateInput: Date | string): string {
 export default function Home() {
   const { isSignedIn, isLoaded: authLoaded } = useUser();
   const { theme, toggleTheme } = useTheme();
+  const { showToast } = useToast();
   const [documents, setDocuments] = useState<DocumentListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -84,13 +86,13 @@ export default function Home() {
       }
     } catch (error) {
       console.error('Failed to create document:', error);
-      alert('Failed to create document. Please try again.');
+      showToast('Failed to create document. Please try again.', 'error');
       setCreating(false);
     }
   };
 
-  const deleteDocument = async (id: string) => {
-    if (!confirm('Delete this document?')) return;
+  const deleteDocument = async (id: string, title?: string) => {
+    if (!confirm(`Delete "${title || 'Untitled'}"? This cannot be undone.`)) return;
     try {
       const res = await fetch(`/api/documents/${id}`, { method: 'DELETE' });
       if (!res.ok) {
@@ -98,9 +100,10 @@ export default function Home() {
         throw new Error(error.error || 'Failed to delete document');
       }
       setDocuments(documents.filter((d) => d.id !== id));
+      showToast('Document deleted', 'success');
     } catch (error) {
       console.error('Failed to delete document:', error);
-      alert('Failed to delete document. Please try again.');
+      showToast('Failed to delete document. Please try again.', 'error');
     }
   };
 
@@ -143,7 +146,7 @@ export default function Home() {
             <button
               onClick={toggleTheme}
               className="p-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors rounded-md hover:bg-slate-100 dark:hover:bg-slate-800"
-              aria-label="Toggle theme"
+              aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
             >
               {theme === 'light' ? (
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -186,7 +189,7 @@ export default function Home() {
             <input
               id="search-input"
               type="text"
-              placeholder="Search..."
+              placeholder="Search by title..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-3 py-1.5 text-sm bg-slate-50 dark:bg-[#1c1c1f] border border-slate-200 dark:border-slate-800 rounded-md focus:outline-none focus:ring-1 focus:ring-slate-400 text-slate-900 dark:text-white placeholder-slate-500"
@@ -228,10 +231,11 @@ export default function Home() {
           <div className="text-center py-16">
             {searchQuery ? (
               <>
-                <p className="text-sm text-slate-500">No documents found</p>
+                <p className="text-sm text-slate-500">No documents matching "{searchQuery}"</p>
+                <p className="text-xs text-slate-400 mt-1">Try a different search term</p>
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="mt-2 text-xs text-slate-900 dark:text-white underline"
+                  className="mt-3 text-xs text-slate-900 dark:text-white underline"
                 >
                   Clear search
                 </button>
@@ -272,10 +276,10 @@ export default function Home() {
                 <button
                   onClick={(e) => {
                     e.preventDefault();
-                    deleteDocument(doc.id);
+                    deleteDocument(doc.id, doc.title);
                   }}
                   className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-red-500 transition-all"
-                  title="Delete document"
+                  aria-label={`Delete "${doc.title || 'Untitled'}" document`}
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

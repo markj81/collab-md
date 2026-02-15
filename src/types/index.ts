@@ -3,6 +3,8 @@ export interface Document {
   title: string;
   content: string | null;
   shareToken: string | null;
+  isPublic: boolean;
+  sharePermission: 'read-only' | 'editable';
   createdAt: Date;
   updatedAt: Date;
 }

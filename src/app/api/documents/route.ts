@@ -40,6 +40,8 @@ export async function POST(request: NextRequest) {
       title: 'Untitled.md',
       content: '',
       shareToken,
+      isPublic: false, // Default to private (requires login)
+      sharePermission: 'editable', // Default to editable
       userId,
     });
 

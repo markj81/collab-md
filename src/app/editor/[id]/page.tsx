@@ -15,6 +15,8 @@ interface DocumentData {
   title: string;
   content: string | null;
   shareToken: string | null;
+  isPublic: boolean;
+  sharePermission: 'read-only' | 'editable';
 }
 
 export default function EditorPage() {
@@ -108,6 +110,18 @@ export default function EditorPage() {
     };
   }, [content, loading, saveDocument]);
 
+  // Unsaved changes warning
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (saving) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [saving]);
+
   const handleTitleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTitle = e.target.value;
     setTitle(newTitle);
@@ -183,8 +197,8 @@ export default function EditorPage() {
 
           <div className="flex items-center gap-1 flex-shrink-0">
             {/* Word count */}
-            <div className="text-xs text-slate-400 px-2">
-              {wordCount.words}
+            <div className="text-xs text-slate-400 px-2" title={`${wordCount.words} words, ${wordCount.chars} characters`}>
+              {wordCount.words} words
             </div>
 
             <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-1" />
@@ -202,6 +216,14 @@ export default function EditorPage() {
                     {user.user.name.charAt(0).toUpperCase()}
                   </div>
                 ))}
+                {users.length > 3 && (
+                  <div
+                    className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] font-medium -ml-1 bg-slate-400 ring-2 ring-white dark:ring-[#0a0a0a]"
+                    title={`${users.length - 3} more users`}
+                  >
+                    +{users.length - 3}
+                  </div>
+                )}
               </div>
             )}
 
@@ -232,13 +254,16 @@ export default function EditorPage() {
               <ShareButton
                 shareUrl={document.shareToken}
                 documentTitle={title}
+                documentId={document.id}
+                initialIsPublic={document.isPublic}
+                initialPermission={document.sharePermission}
               />
             )}
 
             <button
               onClick={toggleTheme}
               className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors"
-              aria-label="Toggle theme"
+              aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
             >
               {theme === 'light' ? (
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
