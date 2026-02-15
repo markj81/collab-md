@@ -7,6 +7,7 @@ import { MarkdownPreview } from '@/components/editor/MarkdownPreview';
 import { ShareButton } from '@/components/ShareButton';
 import { useCollaboration } from '@/hooks/use-collaboration';
 import { useTheme } from '@/components/ThemeProvider';
+import { useToast } from '@/components/Toast';
 import '@/app/editor-dark.css';
 import * as Y from 'yjs';
 
@@ -23,6 +24,7 @@ export default function EditorPage() {
   const params = useParams();
   const router = useRouter();
   const { theme, toggleTheme } = useTheme();
+  const { showToast } = useToast();
   const documentId = params.id as string;
 
   const [document, setDocument] = useState<DocumentData | null>(null);
@@ -34,17 +36,50 @@ export default function EditorPage() {
   const [content, setContent] = useState('');
   const [wordCount, setWordCount] = useState({ words: 0, chars: 0 });
 
+  const { ydoc, yText, isConnected, users } = useCollaboration({
+    documentId,
+  });
+
+  // Store content in a ref for button handlers
+  const contentRef = useRef(content);
+  const yTextRef = useRef(yText);
+
+  // Update refs whenever content or yText changes
+  useEffect(() => {
+    contentRef.current = content;
+  }, [content]);
+
+  useEffect(() => {
+    yTextRef.current = yText;
+  }, [yText]);
+
+  // Also update on every render to catch any changes
+  contentRef.current = content;
+  yTextRef.current = yText;
+
   const handleContentChange = useCallback((newContent: string) => {
     setContent(newContent);
+    contentRef.current = newContent;
   }, []);
 
   const handleWordCountChange = useCallback((words: number, chars: number) => {
     setWordCount({ words, chars });
   }, []);
 
-  const { ydoc, yText, isConnected, users } = useCollaboration({
-    documentId,
-  });
+  // Get current content
+  const getContent = useCallback(() => {
+    // First try yText (collaborative editing)
+    if (yTextRef.current) {
+      const yContent = yTextRef.current.toString();
+      console.log('yText exists, content:', yContent ? `${yContent.length} chars` : 'empty');
+      if (yContent) return yContent;
+    } else {
+      console.log('yText is null');
+    }
+    // Fallback to content state
+    console.log('Using contentRef:', contentRef.current ? `${contentRef.current.length} chars` : 'empty');
+    return contentRef.current;
+  }, []);
 
   const fetchDocument = useCallback(async () => {
     try {
@@ -259,6 +294,45 @@ export default function EditorPage() {
                 initialPermission={document.sharePermission}
               />
             )}
+
+            <button
+              onClick={() => {
+                // Get content directly from state
+                const textToCopy = content || yText?.toString() || '';
+                console.log('Copying, content:', content.length, 'yText:', yText?.toString().length);
+                navigator.clipboard.writeText(textToCopy);
+                showToast('Copied to clipboard!', 'success');
+              }}
+              className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors"
+              aria-label="Copy markdown to clipboard"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+            </button>
+
+            <button
+              onClick={() => {
+                // Get content directly from state
+                const textToSave = content || yText?.toString() || '';
+                const blob = new Blob([textToSave], { type: 'text/markdown' });
+                const url = URL.createObjectURL(blob);
+                const a = globalThis.document.createElement('a');
+                a.href = url;
+                a.download = (title || 'Untitled') + '.md';
+                globalThis.document.body.appendChild(a);
+                a.click();
+                globalThis.document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast('Downloaded markdown file', 'success');
+              }}
+              className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors"
+              aria-label="Download markdown file"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+            </button>
 
             <button
               onClick={toggleTheme}
