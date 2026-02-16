@@ -223,20 +223,23 @@ export default function EditorPage() {
                 </span>
               ) : (
                 <span className="flex items-center gap-1">
-                  <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-green-500' : 'bg-slate-300'}`} />
+                  <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-green-500' : 'bg-slate-300'}`} aria-label={isConnected ? 'Saved' : 'Offline'} />
                   {isConnected ? 'Saved' : 'Offline'}
                 </span>
               )}
             </div>
             {/* Mobile saving indicator - icon only */}
-            <div className="md:hidden" title={saving ? 'Saving...' : (isConnected ? 'Saved' : 'Offline')}>
+            <div className="md:hidden" role="status" aria-live="polite">
               {saving ? (
-                <svg className="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24" aria-hidden="true">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
               ) : (
-                <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-slate-300'}`} />
+                <span
+                  className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-slate-300'}`}
+                  aria-label={isConnected ? 'Saved' : 'Offline'}
+                />
               )}
             </div>
           </div>
@@ -268,30 +271,36 @@ export default function EditorPage() {
               </div>
             )}
 
-            <div className="flex items-center gap-0.5 p-0.5 bg-slate-100 dark:bg-slate-800 rounded-lg md:hidden">
+            <div className="flex items-center gap-0.5 p-0.5 bg-slate-100 dark:bg-slate-800 rounded-lg md:hidden" role="tablist" aria-label="Editor view options">
               <button
                 onClick={() => setActiveTab('write')}
-                className={`p-1.5 rounded-md transition-colors ${
+                className={`p-1.5 rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 ${
                   activeTab === 'write'
                     ? 'text-slate-900 dark:text-white bg-white dark:bg-slate-700 shadow-sm'
                     : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
                 }`}
+                role="tab"
+                aria-selected={activeTab === 'write'}
+                aria-controls="editor-panel"
                 aria-label="Write"
               >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
               </button>
               <button
                 onClick={() => setActiveTab('preview')}
-                className={`p-1.5 rounded-md transition-colors ${
+                className={`p-1.5 rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 ${
                   activeTab === 'preview'
                     ? 'text-slate-900 dark:text-white bg-white dark:bg-slate-700 shadow-sm'
                     : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
                 }`}
+                role="tab"
+                aria-selected={activeTab === 'preview'}
+                aria-controls="preview-panel"
                 aria-label="Preview"
               >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
@@ -376,7 +385,8 @@ export default function EditorPage() {
             initialContent={content}
             onChange={handleContentChange}
             onWordCountChange={handleWordCountChange}
-            wordCount={wordCount}
+            wordCountWords={wordCount.words}
+            wordCountChars={wordCount.chars}
           />
         </div>
         {/* Preview - hidden on mobile when write tab is active */}
