@@ -212,7 +212,7 @@ export default function EditorPage() {
               className="text-sm font-medium text-slate-900 dark:text-white bg-transparent border-none outline-none focus:ring-0 min-w-0 truncate placeholder-slate-400"
               placeholder="Untitled.md"
             />
-            <div className="flex items-center gap-1.5 text-xs text-slate-400 flex-shrink-0">
+            <div className="hidden md:flex items-center gap-1.5 text-xs text-slate-400 flex-shrink-0">
               {saving ? (
                 <span className="flex items-center gap-1">
                   <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -228,14 +228,20 @@ export default function EditorPage() {
                 </span>
               )}
             </div>
+            {/* Mobile saving indicator - icon only */}
+            <div className="md:hidden" title={saving ? 'Saving...' : (isConnected ? 'Saved' : 'Offline')}>
+              {saving ? (
+                <svg className="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+              ) : (
+                <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-slate-300'}`} />
+              )}
+            </div>
           </div>
 
           <div className="flex items-center gap-1 flex-shrink-0">
-            {/* Word count */}
-            <div className="text-xs text-slate-400 px-2" title={`${wordCount.words} words, ${wordCount.chars} characters`}>
-              {wordCount.words} words
-            </div>
-
             <div className="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-1" />
 
             {/* Connected users */}
@@ -265,23 +271,30 @@ export default function EditorPage() {
             <div className="flex items-center gap-0.5 p-0.5 bg-slate-100 dark:bg-slate-800 rounded-lg md:hidden">
               <button
                 onClick={() => setActiveTab('write')}
-                className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                className={`p-1.5 rounded-md transition-colors ${
                   activeTab === 'write'
                     ? 'text-slate-900 dark:text-white bg-white dark:bg-slate-700 shadow-sm'
                     : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
                 }`}
+                aria-label="Write"
               >
-                Write
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
               </button>
               <button
                 onClick={() => setActiveTab('preview')}
-                className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                className={`p-1.5 rounded-md transition-colors ${
                   activeTab === 'preview'
                     ? 'text-slate-900 dark:text-white bg-white dark:bg-slate-700 shadow-sm'
                     : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
                 }`}
+                aria-label="Preview"
               >
-                Preview
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
               </button>
             </div>
 
@@ -363,6 +376,7 @@ export default function EditorPage() {
             initialContent={content}
             onChange={handleContentChange}
             onWordCountChange={handleWordCountChange}
+            wordCount={wordCount}
           />
         </div>
         {/* Preview - hidden on mobile when write tab is active */}

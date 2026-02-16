@@ -15,6 +15,7 @@ interface MarkdownEditorProps {
   initialContent?: string;
   onChange?: (content: string) => void;
   onWordCountChange?: (words: number, chars: number) => void;
+  wordCount?: { words: number; chars: number };
 }
 
 export function MarkdownEditor({
@@ -23,6 +24,7 @@ export function MarkdownEditor({
   initialContent = '',
   onChange,
   onWordCountChange,
+  wordCount,
 }: MarkdownEditorProps) {
   const { theme } = useTheme();
   const editorRef = useRef<HTMLDivElement>(null);
@@ -247,6 +249,11 @@ export function MarkdownEditor({
           <button onClick={toggleFullscreen} className="px-2 py-1 text-xs hover:bg-slate-100 dark:hover:bg-slate-800 rounded text-slate-600 dark:text-slate-400 transition-colors" aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}>
             {isFullscreen ? 'Exit' : 'Fullscreen'}
           </button>
+          {wordCount && (
+            <span className="text-xs text-slate-400 px-1" title={`${wordCount.words} words, ${wordCount.chars} characters`}>
+              {wordCount.words}
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-0.5 px-2 ml-auto">
           <button
