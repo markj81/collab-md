@@ -108,5 +108,6 @@ export function useCollaboration({
     isConnected,
     users,
     setUserInfo,
+    awareness: awarenessRef.current,
   };
 }

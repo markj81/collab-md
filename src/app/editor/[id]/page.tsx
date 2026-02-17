@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useUser } from '@clerk/nextjs';
 import { MarkdownEditor } from '@/components/editor/MarkdownEditor';
 import { MarkdownPreview } from '@/components/editor/MarkdownPreview';
 import { ShareButton } from '@/components/ShareButton';
@@ -23,6 +24,7 @@ interface DocumentData {
 export default function EditorPage() {
   const params = useParams();
   const router = useRouter();
+  const { user, isLoaded: isUserLoaded } = useUser();
   const { theme, toggleTheme } = useTheme();
   const { showToast } = useToast();
   const documentId = params.id as string;
@@ -36,9 +38,21 @@ export default function EditorPage() {
   const [content, setContent] = useState('');
   const [wordCount, setWordCount] = useState({ words: 0, chars: 0 });
 
-  const { ydoc, yText, isConnected, users } = useCollaboration({
+  const { ydoc, yText, isConnected, users, setUserInfo, awareness } = useCollaboration({
     documentId,
   });
+
+  // Set user info when Clerk user is loaded
+  useEffect(() => {
+    if (isUserLoaded && user) {
+      const userName = user.fullName || user.firstName || user.username || 'Anonymous';
+      // Generate a consistent color based on user ID
+      const colorIndex = user.id.charCodeAt(0) % 6;
+      const colors = ['#f783ac', '#748ffc', '#69db7c', '#ffa94d', '#7950f2', '#0c8599'];
+      const userColor = colors[colorIndex];
+      setUserInfo(userName, userColor);
+    }
+  }, [isUserLoaded, user, setUserInfo]);
 
   // Store content in a ref for button handlers
   const contentRef = useRef(content);
@@ -382,6 +396,7 @@ export default function EditorPage() {
             key={documentId}
             documentId={documentId}
             yText={yText || undefined}
+            awareness={awareness}
             initialContent={content}
             onChange={handleContentChange}
             onWordCountChange={handleWordCountChange}

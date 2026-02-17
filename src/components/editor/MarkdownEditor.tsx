@@ -12,6 +12,7 @@ import { useTheme } from '@/components/ThemeProvider';
 interface MarkdownEditorProps {
   documentId: string;
   yText?: Y.Text;
+  awareness?: Record<string, unknown> | null;
   initialContent?: string;
   onChange?: (content: string) => void;
   onWordCountChange?: (words: number, chars: number) => void;
@@ -22,6 +23,7 @@ interface MarkdownEditorProps {
 export function MarkdownEditor({
   documentId,
   yText,
+  awareness,
   initialContent = '',
   onChange,
   onWordCountChange,
@@ -187,8 +189,8 @@ export function MarkdownEditor({
       }),
     ];
 
-    if (yText !== undefined) {
-      extensions.push(yCollab(yText, null) as Extension);
+    if (yText !== undefined && awareness) {
+      extensions.push(yCollab(yText, awareness) as Extension);
     }
 
     const state = EditorState.create({
